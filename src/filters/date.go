@@ -20,6 +20,7 @@ type DateFilter struct {
 }
 
 func NewDateFilter(options map[string]interface{}) (*DateFilter, error) {
+	options = checkOptionsMap(options)
 	f := &DateFilter{config: &dateConfig{}}
 	if err := f.setConfig(options); err != nil {
 		return nil, err
@@ -87,5 +88,5 @@ func (f *DateFilter) Run(batch []*common.Event) []*common.Event {
 			break
 		}
 	}
-	return f.next(batch)
+	return f.next.Run(batch)
 }

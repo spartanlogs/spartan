@@ -10,7 +10,7 @@ import (
 type JsonCodec struct{}
 
 func init() {
-	registerCodec("json", &JsonCodec{})
+	register("json", &JsonCodec{})
 }
 
 func (c *JsonCodec) Format(e *common.Event) []byte {

@@ -8,7 +8,9 @@ import (
 	"github.com/lfkeitel/spartan/src/common"
 )
 
-type Filter func([]*common.Event) []*common.Event
+type Filter interface {
+	Run([]*common.Event) []*common.Event
+}
 
 type FilterController struct {
 	start     Filter
@@ -63,7 +65,7 @@ func (f *FilterController) run() error {
 		}
 
 		fmt.Println("Processing batch")
-		batch = f.start(batch)
+		batch = f.start.Run(batch)
 
 		for _, event := range batch {
 			f.out <- event
@@ -75,6 +77,9 @@ func (f *FilterController) run() error {
 	}
 }
 
-func Return(in []*common.Event) []*common.Event {
-	return in
+func checkOptionsMap(o map[string]interface{}) map[string]interface{} {
+	if o == nil {
+		o = make(map[string]interface{})
+	}
+	return o
 }

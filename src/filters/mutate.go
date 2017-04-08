@@ -20,6 +20,7 @@ type MutateFilter struct {
 }
 
 func NewMutateFilter(options map[string]interface{}) (*MutateFilter, error) {
+	options = checkOptionsMap(options)
 	f := &MutateFilter{config: &mutateConfig{}}
 	if err := f.setConfig(options); err != nil {
 		return nil, err
@@ -68,7 +69,7 @@ func (f *MutateFilter) Run(batch []*common.Event) []*common.Event {
 			f.removeField(event)
 		}
 	}
-	return f.next(batch)
+	return f.next.Run(batch)
 }
 
 func (f *MutateFilter) removeField(e *common.Event) {

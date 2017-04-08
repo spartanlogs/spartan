@@ -19,6 +19,7 @@ type GrokFilter struct {
 }
 
 func NewGrokFilter(options map[string]interface{}) (*GrokFilter, error) {
+	options = checkOptionsMap(options)
 	g := &GrokFilter{config: &grokConfig{}}
 	if err := g.setConfig(options); err != nil {
 		return nil, err
@@ -85,5 +86,5 @@ func (f *GrokFilter) Run(batch []*common.Event) []*common.Event {
 		}
 	}
 
-	return f.next(batch)
+	return f.next.Run(batch)
 }

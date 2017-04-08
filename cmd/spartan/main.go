@@ -80,13 +80,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	filter := filters.NewFilterController(grok.Run, 10)
-	grok.SetNext(dateFilter.Run)
-	dateFilter.SetNext(mutateFilter.Run)
-	mutateFilter.SetNext(filters.Return)
+	filter := filters.NewFilterController(grok, 10)
+	grok.SetNext(dateFilter)
+	dateFilter.SetNext(mutateFilter)
+	mutateFilter.SetNext(&filters.End{})
 
 	// Outputs
-	stdout := outputs.NewStdoutOutput(filters.Return)
+	stdout, _ := outputs.NewStdoutOutput(nil)
+	stdout.SetNext(&filters.End{})
 	output := outputs.NewOutputController(stdout, 10)
 
 	// Communication channels

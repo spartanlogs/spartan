@@ -8,7 +8,9 @@ import (
 	"github.com/lfkeitel/spartan/src/common"
 )
 
-type Output func([]*common.Event) []*common.Event
+type Output interface {
+	Run([]*common.Event) []*common.Event
+}
 
 type OutputController struct {
 	start     Output
@@ -62,9 +64,17 @@ func (o *OutputController) run() error {
 		}
 
 		fmt.Println("Processing batch")
-		o.start(batch)
+		o.start.Run(batch)
+
 		if stopping {
 			return nil
 		}
 	}
+}
+
+func checkOptionsMap(o map[string]interface{}) map[string]interface{} {
+	if o == nil {
+		o = make(map[string]interface{})
+	}
+	return o
 }

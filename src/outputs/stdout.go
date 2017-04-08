@@ -7,14 +7,48 @@ import (
 	"github.com/lfkeitel/spartan/src/common"
 )
 
-func NewStdoutOutput(next Output) Output {
-	c, _ := codecs.NewCodec("json")
-	return func(batch []*common.Event) []*common.Event {
-		for _, event := range batch {
-			if event != nil {
-				fmt.Printf("%s\n", c.Format(event))
-			}
-		}
-		return next(batch)
+type stdOutConfig struct {
+	codec codecs.Codec
+}
+
+type StdOutOutput struct {
+	config *stdOutConfig
+	next   Output
+}
+
+func NewStdoutOutput(options map[string]interface{}) (*StdOutOutput, error) {
+	options = checkOptionsMap(options)
+	o := &StdOutOutput{config: &stdOutConfig{}}
+	if err := o.setConfig(options); err != nil {
+		return nil, err
 	}
+	return o, nil
+}
+
+func (o *StdOutOutput) setConfig(options map[string]interface{}) error {
+	if s, exists := options["codec"]; exists {
+		c, err := codecs.New(s.(string))
+		if err != nil {
+			return err
+		}
+		o.config.codec = c
+	} else {
+		c, _ := codecs.New("json")
+		o.config.codec = c
+	}
+
+	return nil
+}
+
+func (o *StdOutOutput) SetNext(next Output) {
+	o.next = next
+}
+
+func (o *StdOutOutput) Run(batch []*common.Event) []*common.Event {
+	for _, event := range batch {
+		if event != nil {
+			fmt.Printf("%s\n", o.config.codec.Format(event))
+		}
+	}
+	return o.next.Run(batch)
 }
