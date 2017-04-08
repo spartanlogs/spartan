@@ -1,0 +1,63 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "pjrfmwxpsR/8X6vkhU5uWkXC1oQ=",
+			"path": "github.com/hpcloud/tail",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "JQP5xDlFbFT+PZT8Yk70J5tchUE=",
+			"path": "github.com/hpcloud/tail/ratelimiter",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "0xM336Lb25URO/1W1/CtGoRygVU=",
+			"path": "github.com/hpcloud/tail/util",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "yl5hPKT5X6MwsiaaZgPNNxn0Y64=",
+			"path": "github.com/hpcloud/tail/watch",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "j65V4wnJboT4pfppNC/gjr2Gl+c=",
+			"path": "github.com/hpcloud/tail/winfile",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
+			"path": "golang.org/x/net/context",
+			"revision": "0f2be02c5ddfa7c7936000ad519b04c6c795eab3",
+			"revisionTime": "2016-10-01T18:52:36Z"
+		},
+		{
+			"checksumSHA1": "mFhvo8ZlZg1Y1wxet9ndm6JQkJQ=",
+			"origin": "github.com/hpcloud/tail/vendor/gopkg.in/fsnotify.v1",
+			"path": "gopkg.in/fsnotify.v1",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "z56sI90RWCJhiiLlOExjEARbj7I=",
+			"origin": "github.com/hpcloud/tail/vendor/gopkg.in/tomb.v1",
+			"path": "gopkg.in/tomb.v1",
+			"revision": "faf842bde7ed83bbc3c65a2c454fae39bc29a95f",
+			"revisionTime": "2017-02-07T02:33:46Z"
+		},
+		{
+			"checksumSHA1": "t95/FNK2nGCx3e6IARbO7OrcCuY=",
+			"path": "gopkg.in/tomb.v2",
+			"revision": "d5d1b5820637886def9eef33e03a27a9f166942c",
+			"revisionTime": "2016-12-08T15:16:19Z"
+		}
+	],
+	"rootPath": "github.com/lfkeitel/spartan"
+}
