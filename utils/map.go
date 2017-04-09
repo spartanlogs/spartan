@@ -1,5 +1,7 @@
 package utils
 
+import "encoding/json"
+
 // An InterfaceMap is a wrapper object around map[string]interface{}.
 // It's purpose is to more easily manipulate interface{} values in particular
 // with multi-level data structures.
@@ -54,4 +56,12 @@ func (m *InterfaceMap) Copy() *InterfaceMap {
 		n.d[k] = v
 	}
 	return n
+}
+
+func (m *InterfaceMap) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.d)
+}
+
+func (m *InterfaceMap) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, m.d)
 }

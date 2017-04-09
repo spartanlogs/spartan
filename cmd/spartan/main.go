@@ -59,7 +59,13 @@ func main() {
 	}
 
 	// Inputs
-	file := inputs.NewFileInput(os.Args[1])
+	file, err := inputs.New("file", map[string]interface{}{
+		"path": os.Args[1],
+	})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	// Filters
 	mutateFilter, err := filters.NewMutateFilter(mutateOptions)

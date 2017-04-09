@@ -1,6 +1,7 @@
 package inputs
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,16 +10,35 @@ import (
 	"gopkg.in/tomb.v2"
 )
 
-type FileInput struct {
-	path string
-	t    tomb.Tomb
-	out  chan<- *event.Event
+func init() {
+	register("file", NewFileInput)
 }
 
-func NewFileInput(file string) *FileInput {
-	return &FileInput{
-		path: file,
+type fileConfig struct {
+	path string
+}
+
+type FileInput struct {
+	config *fileConfig
+	t      tomb.Tomb
+	out    chan<- *event.Event
+}
+
+func NewFileInput(options map[string]interface{}) (Input, error) {
+	i := &FileInput{
+		config: &fileConfig{},
 	}
+	return i, i.setConfig(options)
+}
+
+func (i *FileInput) setConfig(options map[string]interface{}) error {
+	if s, exists := options["path"]; exists {
+		i.config.path = s.(string)
+	} else {
+		return errors.New("Path option required")
+	}
+
+	return nil
 }
 
 func (i *FileInput) Start(out chan<- *event.Event) error {
@@ -40,7 +60,7 @@ func (i *FileInput) run() error {
 		default:
 		}
 
-		t, err := tail.TailFile(i.path, tail.Config{
+		t, err := tail.TailFile(i.config.path, tail.Config{
 			Follow: true,
 			ReOpen: true,
 		})
