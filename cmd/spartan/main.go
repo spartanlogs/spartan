@@ -87,7 +87,7 @@ func main() {
 
 	// Outputs
 	stdout, _ := outputs.NewStdoutOutput(nil)
-	stdout.SetNext(&filters.End{})
+	stdout.SetNext(&outputs.End{})
 	output := outputs.NewOutputController(stdout, 10)
 
 	// Communication channels

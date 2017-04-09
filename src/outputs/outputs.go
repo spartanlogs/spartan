@@ -9,7 +9,8 @@ import (
 )
 
 type Output interface {
-	Run([]*common.Event) []*common.Event
+	SetNext(Output)
+	Run([]*common.Event)
 }
 
 type OutputController struct {

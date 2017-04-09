@@ -44,11 +44,11 @@ func (o *StdOutOutput) SetNext(next Output) {
 	o.next = next
 }
 
-func (o *StdOutOutput) Run(batch []*common.Event) []*common.Event {
+func (o *StdOutOutput) Run(batch []*common.Event) {
 	for _, event := range batch {
 		if event != nil {
 			fmt.Printf("%s\n", o.config.codec.Format(event))
 		}
 	}
-	return o.next.Run(batch)
+	o.next.Run(batch)
 }

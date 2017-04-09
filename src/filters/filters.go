@@ -9,6 +9,7 @@ import (
 )
 
 type Filter interface {
+	SetNext(Filter)
 	Run([]*common.Event) []*common.Event
 }
 
