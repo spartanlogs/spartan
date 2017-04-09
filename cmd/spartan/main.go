@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/filters"
 	"github.com/lfkeitel/spartan/inputs"
 	"github.com/lfkeitel/spartan/outputs"
@@ -91,8 +91,8 @@ func main() {
 	output := outputs.NewOutputController(stdout, 10)
 
 	// Communication channels
-	inputChan := make(chan *common.Event)
-	outputChan := make(chan *common.Event)
+	inputChan := make(chan *event.Event)
+	outputChan := make(chan *event.Event)
 
 	// Start everything
 	fmt.Println("Starting outputs")
@@ -131,7 +131,7 @@ Go version:  %s
 }
 
 func testMainConfig() {
-	// _, err := common.NewConfig(configFile)
+	// _, err := utils.NewConfig(configFile)
 	// if err != nil {
 	// 	fmt.Printf("Error loading configuration: %v\n", err)
 	// 	os.Exit(1)

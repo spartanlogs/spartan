@@ -1,4 +1,4 @@
-package common
+package utils
 
 // An InterfaceMap is a wrapper object around map[string]interface{}.
 // It's purpose is to more easily manipulate interface{} values in particular

@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 )
 
 var mutateActions = []string{"remove_field"}
@@ -55,14 +56,14 @@ func (f *MutateFilter) setConfig(options map[string]interface{}) error {
 }
 
 func (f *MutateFilter) isValidAction(action string) bool {
-	return common.StringInSlice(action, mutateActions)
+	return utils.StringInSlice(action, mutateActions)
 }
 
 func (f *MutateFilter) SetNext(next Filter) {
 	f.next = next
 }
 
-func (f *MutateFilter) Run(batch []*common.Event) []*common.Event {
+func (f *MutateFilter) Run(batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		switch f.config.action {
 		case "remove_field":
@@ -72,7 +73,7 @@ func (f *MutateFilter) Run(batch []*common.Event) []*common.Event {
 	return f.next.Run(batch)
 }
 
-func (f *MutateFilter) removeField(e *common.Event) {
+func (f *MutateFilter) removeField(e *event.Event) {
 	for _, field := range f.config.fields {
 		e.RemoveField(field)
 	}

@@ -1,4 +1,4 @@
-package common
+package utils
 
 // StringInSlice checks haystack for the presense of needle
 func StringInSlice(needle string, haystack []string) bool {

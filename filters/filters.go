@@ -3,22 +3,22 @@ package filters
 import (
 	"fmt"
 
-	tomb "gopkg.in/tomb.v2"
+	"github.com/lfkeitel/spartan/event"
 
-	"github.com/lfkeitel/spartan/common"
+	tomb "gopkg.in/tomb.v2"
 )
 
 type Filter interface {
 	SetNext(Filter)
-	Run([]*common.Event) []*common.Event
+	Run([]*event.Event) []*event.Event
 }
 
 type FilterController struct {
 	start     Filter
 	batchSize int
 	t         tomb.Tomb
-	in        <-chan *common.Event
-	out       chan<- *common.Event
+	in        <-chan *event.Event
+	out       chan<- *event.Event
 }
 
 func NewFilterController(start Filter, batchSize int) *FilterController {
@@ -28,7 +28,7 @@ func NewFilterController(start Filter, batchSize int) *FilterController {
 	}
 }
 
-func (f *FilterController) Start(in, out chan *common.Event) error {
+func (f *FilterController) Start(in, out chan *event.Event) error {
 	f.in = in
 	f.out = out
 	f.t.Go(f.run)
@@ -50,7 +50,7 @@ func (f *FilterController) run() error {
 		}
 
 		currentBatch := 0
-		batch := make([]*common.Event, f.batchSize)
+		batch := make([]*event.Event, f.batchSize)
 		stopping := false
 
 	CURRENT:

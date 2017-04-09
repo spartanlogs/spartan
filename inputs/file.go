@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"github.com/hpcloud/tail"
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
 	"gopkg.in/tomb.v2"
 )
 
 type FileInput struct {
 	path string
 	t    tomb.Tomb
-	out  chan<- *common.Event
+	out  chan<- *event.Event
 }
 
 func NewFileInput(file string) *FileInput {
@@ -21,7 +21,7 @@ func NewFileInput(file string) *FileInput {
 	}
 }
 
-func (i *FileInput) Start(out chan<- *common.Event) error {
+func (i *FileInput) Start(out chan<- *event.Event) error {
 	i.out = out
 	i.t.Go(i.run)
 	return nil
@@ -60,7 +60,7 @@ func (i *FileInput) run() error {
 					fmt.Println(line.Err.Error())
 					continue
 				}
-				i.out <- common.NewEvent(line.Text)
+				i.out <- event.New(line.Text)
 			case <-i.t.Dying():
 				t.Stop()
 				t.Cleanup()

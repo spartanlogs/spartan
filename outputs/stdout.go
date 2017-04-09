@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/lfkeitel/spartan/codecs"
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
 )
 
 type stdOutConfig struct {
@@ -44,7 +44,7 @@ func (o *StdOutOutput) SetNext(next Output) {
 	o.next = next
 }
 
-func (o *StdOutOutput) Run(batch []*common.Event) {
+func (o *StdOutOutput) Run(batch []*event.Event) {
 	for _, event := range batch {
 		if event != nil {
 			fmt.Printf("%s\n", o.config.codec.Format(event))

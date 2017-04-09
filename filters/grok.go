@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
 )
 
 type grokConfig struct {
@@ -51,7 +51,7 @@ func (f *GrokFilter) SetNext(next Filter) {
 	f.next = next
 }
 
-func (f *GrokFilter) Run(batch []*common.Event) []*common.Event {
+func (f *GrokFilter) Run(batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		if event == nil {
 			continue

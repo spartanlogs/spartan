@@ -1,8 +1,10 @@
-package common
+package event
 
 import (
 	"sync"
 	"time"
+
+	"github.com/lfkeitel/spartan/utils"
 )
 
 const (
@@ -26,17 +28,17 @@ type Event struct {
 	etype     string
 	message   string
 	tags      []string
-	data      *InterfaceMap
+	data      *utils.InterfaceMap
 }
 
-// NewEvent creates a new Event object setting its message to message.
+// New creates a new Event object setting its message to message.
 // @timestamp is set to time.Now() and tags and data are empty.
-func NewEvent(message string) *Event {
+func New(message string) *Event {
 	return &Event{
 		timestamp: time.Now(),
 		message:   message,
 		tags:      make([]string, 0),
-		data:      NewInterfaceMap(),
+		data:      utils.NewInterfaceMap(),
 	}
 }
 
@@ -44,7 +46,7 @@ func NewEvent(message string) *Event {
 // are the Event's field names. The returned map is safe for the caller to
 // manipulate as it's a copy of the underlying map in the Event. This method
 // is intented for output/codecs modules to encode the Event.
-func (e *Event) Squash() *InterfaceMap {
+func (e *Event) Squash() *utils.InterfaceMap {
 	e.Lock()
 	dataCopy := e.data.Copy()
 

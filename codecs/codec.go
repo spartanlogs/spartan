@@ -3,11 +3,11 @@ package codecs
 import (
 	"fmt"
 
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
 )
 
 type Codec interface {
-	Format(*common.Event) []byte
+	Format(*event.Event) []byte
 }
 
 var registeredCodecs map[string]Codec

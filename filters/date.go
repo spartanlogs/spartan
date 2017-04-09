@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/event"
 )
 
 type dateConfig struct {
@@ -61,7 +61,7 @@ func (f *DateFilter) SetNext(next Filter) {
 	f.next = next
 }
 
-func (f *DateFilter) Run(batch []*common.Event) []*common.Event {
+func (f *DateFilter) Run(batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		field := event.Get(f.config.field)
 		if field == nil {

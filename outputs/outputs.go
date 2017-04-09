@@ -3,22 +3,22 @@ package outputs
 import (
 	"fmt"
 
-	tomb "gopkg.in/tomb.v2"
+	"github.com/lfkeitel/spartan/event"
 
-	"github.com/lfkeitel/spartan/common"
+	tomb "gopkg.in/tomb.v2"
 )
 
 type Output interface {
 	SetNext(Output)
-	Run([]*common.Event)
+	Run([]*event.Event)
 }
 
 type OutputController struct {
 	start     Output
 	batchSize int
 	t         tomb.Tomb
-	in        <-chan *common.Event
-	out       chan<- *common.Event
+	in        <-chan *event.Event
+	out       chan<- *event.Event
 }
 
 func NewOutputController(start Output, batchSize int) *OutputController {
@@ -28,7 +28,7 @@ func NewOutputController(start Output, batchSize int) *OutputController {
 	}
 }
 
-func (o *OutputController) Start(in chan *common.Event) error {
+func (o *OutputController) Start(in chan *event.Event) error {
 	o.in = in
 	o.t.Go(o.run)
 	return nil
@@ -49,7 +49,7 @@ func (o *OutputController) run() error {
 		}
 
 		currentBatch := 0
-		batch := make([]*common.Event, o.batchSize)
+		batch := make([]*event.Event, o.batchSize)
 		stopping := false
 
 	CURRENT:
