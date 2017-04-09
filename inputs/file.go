@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/hpcloud/tail"
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 	"gopkg.in/tomb.v2"
 )
 

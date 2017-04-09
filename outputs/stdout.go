@@ -3,8 +3,8 @@ package outputs
 import (
 	"fmt"
 
-	"github.com/lfkeitel/spartan/src/codecs"
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/codecs"
+	"github.com/lfkeitel/spartan/common"
 )
 
 type stdOutConfig struct {

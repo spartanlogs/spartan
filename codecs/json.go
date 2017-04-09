@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 )
 
 type JsonCodec struct{}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 )
 
 type grokConfig struct {

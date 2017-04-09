@@ -1,6 +1,6 @@
 package filters
 
-import "github.com/lfkeitel/spartan/src/common"
+import "github.com/lfkeitel/spartan/common"
 
 type End struct{}
 

@@ -3,7 +3,7 @@ package codecs
 import (
 	"fmt"
 
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 )
 
 type Codec interface {

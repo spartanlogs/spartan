@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/lfkeitel/spartan/src/common"
-	"github.com/lfkeitel/spartan/src/filters"
-	"github.com/lfkeitel/spartan/src/inputs"
-	"github.com/lfkeitel/spartan/src/outputs"
+	"github.com/lfkeitel/spartan/common"
+	"github.com/lfkeitel/spartan/filters"
+	"github.com/lfkeitel/spartan/inputs"
+	"github.com/lfkeitel/spartan/outputs"
 )
 
 var (

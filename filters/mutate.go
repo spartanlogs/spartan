@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 )
 
 var mutateActions = []string{"remove_field"}

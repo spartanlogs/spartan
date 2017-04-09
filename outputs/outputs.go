@@ -5,7 +5,7 @@ import (
 
 	tomb "gopkg.in/tomb.v2"
 
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 )
 
 type Output interface {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lfkeitel/spartan/src/common"
+	"github.com/lfkeitel/spartan/common"
 )
 
 type dateConfig struct {
