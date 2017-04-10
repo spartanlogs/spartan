@@ -5,7 +5,7 @@
 package filters
 
 var grokPatterns = map[string]string{
-	"GROK_VARIABLE": `([a-zA-Z_]+)(?:\:(.*?))?`,
+	"GROK_VARIABLE": `[a-zA-Z0-9_]+`,
 	"POSINT":        `\b(?:[1-9][0-9]*)\b`,
 	"GREEDYDATA":    `.*`,
 	"MONTHDAY":      `(?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])`,

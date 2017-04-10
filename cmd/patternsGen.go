@@ -14,7 +14,7 @@ var (
 	patterns     []*pattern
 	rootDir      string
 
-	grokPatternNameRegex = `([a-zA-Z_]+)(?:\:(.*?))?`
+	grokPatternNameRegex = `[a-zA-Z0-9_]+`
 	grokPatternName      = regexp.MustCompile(grokPatternNameRegex)
 )
 

@@ -16,12 +16,13 @@ import (
 const PatternExt = ".p"
 
 var (
-	varInterpolatePattern = regexp.MustCompile(fmt.Sprintf("%%{%s}", grokPatterns["GROK_VARIABLE"]))
+	varInterpolatePattern = fmt.Sprintf(`%%{(%s)(?:\:(.*?))?}`, grokPatterns["GROK_VARIABLE"])
+	varInterpolateRegex   = regexp.MustCompile(varInterpolatePattern)
 	varPattern            = regexp.MustCompile(grokPatterns["GROK_VARIABLE"])
 )
 
 func interpolatePatterns(s string) string {
-	matches := varInterpolatePattern.FindAllStringSubmatch(s, -1)
+	matches := varInterpolateRegex.FindAllStringSubmatch(s, -1)
 	if len(matches) == 0 {
 		return s
 	}
