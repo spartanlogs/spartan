@@ -30,27 +30,30 @@ doc:
 	@godoc -http=:6060 -index
 
 fmt:
-	@go fmt $$(go list ./src/...)
+	@go fmt $$(go list ./... | grep -v /vendor/)
+
+generate:
+	@go generate $$(go list ./... | grep -v /vendor/)
 
 alltests: test lint vet
 
 test:
-	@go test -race $$(go list ./src/...)
+	@go test -race $$(go list ./... | grep -v /vendor/)
 
 coverage:
-	@go test -cover $$(go list ./src/...)
+	@go test -cover $$(go list ./... | grep -v /vendor/)
 
 benchmark:
 	@echo "Running tests..."
-	@go test -bench=. $$(go list ./src/...)
+	@go test -bench=. $$(go list ./... | grep -v /vendor/)
 
 # https://github.com/golang/lint
 # go get github.com/golang/lint/golint
 lint:
-	@golint ./src/...
+	@golint $$(go list ./... | grep -v /vendor/)
 
 vet:
-	@go vet $$(go list ./src/...)
+	@go vet $$(go list ./... | grep -v /vendor/)
 
 app:
 	GOBIN="$(GOBIN)" go install -v -ldflags "$(LDFLAGS)" -tags '$(BUILDTAGS)' ./cmd/spartan
