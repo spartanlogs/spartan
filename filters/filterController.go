@@ -8,11 +8,6 @@ import (
 	tomb "gopkg.in/tomb.v2"
 )
 
-type Filter interface {
-	SetNext(Filter)
-	Run([]*event.Event) []*event.Event
-}
-
 type FilterController struct {
 	start     Filter
 	batchSize int

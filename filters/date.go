@@ -8,6 +8,10 @@ import (
 	"github.com/lfkeitel/spartan/event"
 )
 
+func init() {
+	register("date", newDateFilter)
+}
+
 type dateConfig struct {
 	field    string
 	patterns []string
@@ -19,7 +23,7 @@ type DateFilter struct {
 	config *dateConfig
 }
 
-func NewDateFilter(options map[string]interface{}) (*DateFilter, error) {
+func newDateFilter(options map[string]interface{}) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &DateFilter{config: &dateConfig{}}
 	if err := f.setConfig(options); err != nil {

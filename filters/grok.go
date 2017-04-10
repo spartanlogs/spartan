@@ -8,6 +8,10 @@ import (
 	"github.com/lfkeitel/spartan/event"
 )
 
+func init() {
+	register("grok", newGrokFilter)
+}
+
 type grokConfig struct {
 	field string
 	regex *regexp.Regexp
@@ -18,7 +22,7 @@ type GrokFilter struct {
 	config *grokConfig
 }
 
-func NewGrokFilter(options map[string]interface{}) (*GrokFilter, error) {
+func newGrokFilter(options map[string]interface{}) (Filter, error) {
 	options = checkOptionsMap(options)
 	g := &GrokFilter{config: &grokConfig{}}
 	if err := g.setConfig(options); err != nil {

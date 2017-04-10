@@ -68,28 +68,30 @@ func main() {
 	}
 
 	// Filters
-	mutateFilter, err := filters.NewMutateFilter(mutateOptions)
+	mutateFilter, err := filters.New("mutate", mutateOptions)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	dateFilter, err := filters.NewDateFilter(dateOptions)
+	dateFilter, err := filters.New("date", dateOptions)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	grok, err := filters.NewGrokFilter(grokOptions)
+	grok, err := filters.New("grok", grokOptions)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	end, _ := filters.New("end", nil)
 
 	filter := filters.NewFilterController(grok, 10)
 	grok.SetNext(dateFilter)
 	dateFilter.SetNext(mutateFilter)
-	mutateFilter.SetNext(&filters.End{})
+	mutateFilter.SetNext(end)
 
 	// Outputs
 	stdout, _ := outputs.NewStdoutOutput(nil)

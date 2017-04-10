@@ -8,6 +8,10 @@ import (
 	"github.com/lfkeitel/spartan/utils"
 )
 
+func init() {
+	register("mutate", newMutateFilter)
+}
+
 var mutateActions = []string{"remove_field"}
 
 type mutateConfig struct {
@@ -20,7 +24,7 @@ type MutateFilter struct {
 	config *mutateConfig
 }
 
-func NewMutateFilter(options map[string]interface{}) (*MutateFilter, error) {
+func newMutateFilter(options map[string]interface{}) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &MutateFilter{config: &mutateConfig{}}
 	if err := f.setConfig(options); err != nil {
