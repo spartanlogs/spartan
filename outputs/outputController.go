@@ -8,11 +8,6 @@ import (
 	tomb "gopkg.in/tomb.v2"
 )
 
-type Output interface {
-	SetNext(Output)
-	Run([]*event.Event)
-}
-
 type OutputController struct {
 	start     Output
 	batchSize int

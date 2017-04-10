@@ -7,6 +7,10 @@ import (
 	"github.com/lfkeitel/spartan/event"
 )
 
+func init() {
+	register("stdout", newStdOutOutput)
+}
+
 type stdOutConfig struct {
 	codec codecs.Codec
 }
@@ -16,7 +20,7 @@ type StdOutOutput struct {
 	next   Output
 }
 
-func NewStdoutOutput(options map[string]interface{}) (*StdOutOutput, error) {
+func newStdOutOutput(options map[string]interface{}) (Output, error) {
 	options = checkOptionsMap(options)
 	o := &StdOutOutput{config: &stdOutConfig{}}
 	if err := o.setConfig(options); err != nil {
