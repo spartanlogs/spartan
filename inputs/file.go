@@ -11,20 +11,22 @@ import (
 )
 
 func init() {
-	register("file", NewFileInput)
+	register("file", newFileInput)
 }
 
 type fileConfig struct {
 	path string
 }
 
+// A FileInput will read a file and optionally tail it. Each line is considered
+// a separate event.
 type FileInput struct {
 	config *fileConfig
 	t      tomb.Tomb
 	out    chan<- *event.Event
 }
 
-func NewFileInput(options map[string]interface{}) (Input, error) {
+func newFileInput(options map[string]interface{}) (Input, error) {
 	i := &FileInput{
 		config: &fileConfig{},
 	}
@@ -41,12 +43,14 @@ func (i *FileInput) setConfig(options map[string]interface{}) error {
 	return nil
 }
 
+// Start the FileInput reading/tailing.
 func (i *FileInput) Start(out chan<- *event.Event) error {
 	i.out = out
 	i.t.Go(i.run)
 	return nil
 }
 
+// Close the FileInput
 func (i *FileInput) Close() error {
 	i.t.Kill(nil)
 	return i.t.Wait()

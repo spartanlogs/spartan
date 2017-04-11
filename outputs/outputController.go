@@ -8,6 +8,9 @@ import (
 	tomb "gopkg.in/tomb.v2"
 )
 
+// A OutputController is responsible for collecting a batch of events from filter
+// pipelines and starting a chain of Outputs to process the batch. Events are
+// considered process once they've been through the output chain.
 type OutputController struct {
 	start     Output
 	batchSize int
@@ -16,6 +19,8 @@ type OutputController struct {
 	out       chan<- *event.Event
 }
 
+// NewOutputController creates a new controller using start as the root Output
+// and batchSize as the number of events to queue before processing.
 func NewOutputController(start Output, batchSize int) *OutputController {
 	return &OutputController{
 		start:     start,
@@ -23,12 +28,18 @@ func NewOutputController(start Output, batchSize int) *OutputController {
 	}
 }
 
+// Start creates a go routine where the controller will start to wait for
+// and collect events for processing. The in channel is used to collect Events
+// from filter pipelines.
 func (o *OutputController) Start(in chan *event.Event) error {
 	o.in = in
 	o.t.Go(o.run)
 	return nil
 }
 
+// Close will gracefully shutdown the Controller. Collection from the input channel
+// is immediately stopped and all in-flight events are processed and then the
+// controller go routine exits.
 func (o *OutputController) Close() error {
 	o.t.Kill(nil)
 	return o.t.Wait()
@@ -68,6 +79,7 @@ func (o *OutputController) run() error {
 	}
 }
 
+// checkOptionsMap ensures an option map is never nil.
 func checkOptionsMap(o map[string]interface{}) map[string]interface{} {
 	if o == nil {
 		o = make(map[string]interface{})

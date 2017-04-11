@@ -58,10 +58,12 @@ func (m *InterfaceMap) Copy() *InterfaceMap {
 	return n
 }
 
+// MarshalJSON marshals the underlying map instead of the struct.
 func (m *InterfaceMap) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.d)
 }
 
+// UnmarshalJSON unmarshals the underlying map instead of the struct.
 func (m *InterfaceMap) UnmarshalJSON(data []byte) error {
 	return json.Unmarshal(data, m.d)
 }

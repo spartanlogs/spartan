@@ -15,6 +15,7 @@ type stdOutConfig struct {
 	codec codecs.Codec
 }
 
+// StdOutOutput prints events to StdOut.
 type StdOutOutput struct {
 	config *stdOutConfig
 	next   Output
@@ -44,10 +45,12 @@ func (o *StdOutOutput) setConfig(options map[string]interface{}) error {
 	return nil
 }
 
+// SetNext sets the next Output in line.
 func (o *StdOutOutput) SetNext(next Output) {
 	o.next = next
 }
 
+// Run processes a batch.
 func (o *StdOutOutput) Run(batch []*event.Event) {
 	for _, event := range batch {
 		if event != nil {

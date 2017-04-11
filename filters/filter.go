@@ -10,7 +10,10 @@ import (
 // and must return a slice of events. Events may be removed, edited, or added. Once a filter
 // is done processing, it should call the next Filter in line with its processed event batch.
 type Filter interface {
+	// SetNext sets the next Filter in line.
 	SetNext(next Filter)
+
+	// Run processes a batch.
 	Run(batch []*event.Event) []*event.Event
 }
 
