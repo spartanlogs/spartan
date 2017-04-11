@@ -51,7 +51,7 @@ func (o *StdOutOutput) SetNext(next Output) {
 func (o *StdOutOutput) Run(batch []*event.Event) {
 	for _, event := range batch {
 		if event != nil {
-			fmt.Printf("%s\n", o.config.codec.Format(event))
+			fmt.Printf("%s\n", o.config.codec.Encode(event))
 		}
 	}
 	o.next.Run(batch)
