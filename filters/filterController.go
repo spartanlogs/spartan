@@ -8,6 +8,9 @@ import (
 	tomb "gopkg.in/tomb.v2"
 )
 
+// A FilterController is responsible for collecting a batch of events from inputs
+// and start a chain of Filters to process the batch. Events are then sent to
+// outputs.
 type FilterController struct {
 	start     Filter
 	batchSize int
@@ -16,6 +19,8 @@ type FilterController struct {
 	out       chan<- *event.Event
 }
 
+// NewFilterController creates a new controller using start as the root Filter
+// and batchSize as the number of events to queue before processing.
 func NewFilterController(start Filter, batchSize int) *FilterController {
 	return &FilterController{
 		start:     start,
@@ -23,6 +28,9 @@ func NewFilterController(start Filter, batchSize int) *FilterController {
 	}
 }
 
+// Start creates a go routine where the controller will start to wait for
+// and collect events for processing. The in channel is used to collect Events
+// from inputs. The out channel is where Events are sent to the outputs.
 func (f *FilterController) Start(in, out chan *event.Event) error {
 	f.in = in
 	f.out = out
@@ -30,6 +38,9 @@ func (f *FilterController) Start(in, out chan *event.Event) error {
 	return nil
 }
 
+// Close will gracefully shutdown the Controller. Collection from the input channel
+// is immediately stopped and all in-flight events are processed, sent to outputs, and
+// then the controller go routine exits.
 func (f *FilterController) Close() error {
 	f.t.Kill(nil)
 	return f.t.Wait()
@@ -73,6 +84,7 @@ func (f *FilterController) run() error {
 	}
 }
 
+// checkOptionsMap ensures an option map is never nil.
 func checkOptionsMap(o map[string]interface{}) map[string]interface{} {
 	if o == nil {
 		o = make(map[string]interface{})

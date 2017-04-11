@@ -17,6 +17,8 @@ type grokConfig struct {
 	regex *regexp.Regexp
 }
 
+// A GrokFilter processes event fields based on give regex patterns.
+// The first pattern to match is used for field data.
 type GrokFilter struct {
 	next   Filter
 	config *grokConfig
@@ -51,10 +53,12 @@ func (f *GrokFilter) setConfig(options map[string]interface{}) error {
 	return nil
 }
 
+// SetNext sets the next Filter in line.
 func (f *GrokFilter) SetNext(next Filter) {
 	f.next = next
 }
 
+// Run processes a batch.
 func (f *GrokFilter) Run(batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		if event == nil {
