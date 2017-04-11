@@ -32,13 +32,9 @@ const (
 	NOT_EQ = "!="
 
 	// Delimiters
-	COMMA     = ","
-	SEMICOLON = ";"
-	COLON     = ":"
+	COMMA = ","
 
 	// Groups and blocks
-	LPAREN  = "("
-	RPAREN  = ")"
 	LBRACE  = "{"
 	RBRACE  = "}"
 	LSQUARE = "["
@@ -77,4 +73,12 @@ func lookupIdent(ident string) tokenType {
 		return tok
 	}
 	return IDENT
+}
+
+func newByteToken(tokType tokenType, ch byte) token {
+	return newToken(tokType, string(ch))
+}
+
+func newToken(tokType tokenType, lit string) token {
+	return token{Type: tokType, Literal: lit}
 }

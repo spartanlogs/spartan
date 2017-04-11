@@ -43,40 +43,31 @@ func (l *lexer) nextToken() token {
 	switch l.curCh {
 	// Operators
 	case '+':
-		tok = newToken(PLUS, l.curCh)
+		tok = newByteToken(PLUS, l.curCh)
 		break
 	case '-':
-		tok = newToken(MINUS, l.curCh)
+		tok = newByteToken(MINUS, l.curCh)
 		break
 	case '*':
-		tok = newToken(ASTERISK, l.curCh)
+		tok = newByteToken(ASTERISK, l.curCh)
 		break
 	case '/':
 		if l.peekChar() == '/' {
 			l.readChar()
-			tok = token{
-				Type:    COMMENT,
-				Literal: l.readSingleLineComment(),
-			}
+			tok = newToken(COMMENT, l.readSingleLineComment())
 		} else if l.peekChar() == '*' {
 			l.readChar()
-			tok = token{
-				Type:    COMMENT,
-				Literal: l.readMultiLineComment(),
-			}
+			tok = newToken(COMMENT, l.readMultiLineComment())
 		} else {
-			tok = newToken(SLASH, l.curCh)
+			tok = newByteToken(SLASH, l.curCh)
 		}
 		break
 	case '!':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token{
-				Type:    NOT_EQ,
-				Literal: "!=",
-			}
+			tok = newToken(NOT_EQ, "!=")
 		} else {
-			tok = newToken(BANG, l.curCh)
+			tok = newByteToken(BANG, l.curCh)
 		}
 		break
 
@@ -84,82 +75,61 @@ func (l *lexer) nextToken() token {
 	case '=':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token{
-				Type:    EQ,
-				Literal: "==",
-			}
+			tok = newToken(EQ, "==")
 		} else if l.peekChar() == '>' {
 			l.readChar()
-			tok = token{
-				Type:    ASSIGN,
-				Literal: "=>",
-			}
+			tok = newToken(ASSIGN, "=>")
 		} else {
-			tok = newToken(ILLEGAL, l.curCh)
+			tok = newByteToken(ILLEGAL, l.curCh)
 		}
 		break
 	case '<':
-		tok = newToken(LT, l.curCh)
+		tok = newByteToken(LT, l.curCh)
 		break
 	case '>':
-		tok = newToken(GT, l.curCh)
+		tok = newByteToken(GT, l.curCh)
 		break
 
 	// Control characters
 	case ',':
-		tok = newToken(COMMA, l.curCh)
-		break
-	case ';':
-		tok = newToken(SEMICOLON, l.curCh)
-		break
-	case ':':
-		tok = newToken(COLON, l.curCh)
+		tok = newByteToken(COMMA, l.curCh)
 		break
 
 	// Groupings
-	case '(':
-		tok = newToken(LPAREN, l.curCh)
-		break
-	case ')':
-		tok = newToken(RPAREN, l.curCh)
-		break
 	case '{':
-		tok = newToken(LBRACE, l.curCh)
+		tok = newByteToken(LBRACE, l.curCh)
 		break
 	case '}':
-		tok = newToken(RBRACE, l.curCh)
+		tok = newByteToken(RBRACE, l.curCh)
 		break
 	case '[':
-		tok = newToken(LSQUARE, l.curCh)
+		tok = newByteToken(LSQUARE, l.curCh)
 		break
 	case ']':
-		tok = newToken(RSQUARE, l.curCh)
+		tok = newByteToken(RSQUARE, l.curCh)
 		break
 
 	case '"':
-		tok.Literal = l.readString()
-		tok.Type = STRING
+		tok = newToken(STRING, l.readString())
 		break
 	case '#':
-		tok.Literal = l.readSingleLineComment()
-		tok.Type = COMMENT
+		tok = newToken(COMMENT, l.readSingleLineComment())
 		break
 	case 0:
-		tok.Literal = ""
-		tok.Type = EOF
+		tok = newToken(EOF, "")
 		break
 
 	default:
 		if isLetter(l.curCh) {
-			tok.Literal = l.readIdentifier()
-			tok.Type = lookupIdent(tok.Literal)
-			break
+			lit := l.readIdentifier()
+			tok = newToken(lookupIdent(lit), lit)
+			return tok
 		} else if isDigit(l.curCh) {
 			tok = l.readNumber()
-			break
+			return tok
 		}
 
-		tok = newToken(ILLEGAL, l.curCh)
+		tok = newByteToken(ILLEGAL, l.curCh)
 	}
 
 	l.readChar()
@@ -206,17 +176,14 @@ func (l *lexer) readNumber() token {
 		l.readChar()
 	}
 
-	return token{
-		Type:    tokenType(numTokenType),
-		Literal: ident.String(),
-	}
+	return newToken(tokenType(numTokenType), ident.String())
 }
 
 func (l *lexer) readSingleLineComment() string {
 	var com bytes.Buffer
 	l.readChar() // Go over # or / characters
 
-	for l.curCh != '\n' {
+	for l.curCh != '\n' && l.curCh != 0 {
 		com.WriteByte(l.curCh)
 		l.readChar()
 	}
@@ -236,17 +203,13 @@ func (l *lexer) readMultiLineComment() string {
 		com.WriteByte(l.curCh)
 		l.readChar()
 	}
-	return com.String()
+	return strings.TrimSpace(com.String())
 }
 
 func (l *lexer) devourWhitespace() {
 	for isWhitespace(l.curCh) {
 		l.readChar()
 	}
-}
-
-func newToken(tokType tokenType, ch byte) token {
-	return token{Type: tokType, Literal: string(ch)}
 }
 
 func isLetter(ch byte) bool {
