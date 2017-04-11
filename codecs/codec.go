@@ -1,7 +1,7 @@
 package codecs
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/lfkeitel/spartan/event"
 )
@@ -19,22 +19,30 @@ type Codec interface {
 
 type codecInitFunc func() (Codec, error)
 
-var registeredCodecs map[string]codecInitFunc
+var (
+	registeredCodecInits map[string]codecInitFunc
+
+	// ErrCodecNotRegistered is returned when attempting to create an unregistered Codec.
+	ErrCodecNotRegistered = errors.New("Codec doesn't exist")
+)
 
 // register is an internal function for codecs to register their names
 // and init functions.
 func register(name string, c codecInitFunc) {
-	if registeredCodecs == nil {
-		registeredCodecs = make(map[string]codecInitFunc)
+	if registeredCodecInits == nil {
+		registeredCodecInits = make(map[string]codecInitFunc)
 	}
-	registeredCodecs[name] = c
+	if _, exists := registeredCodecInits[name]; exists {
+		panic("Duplicate registration of filter module: " + name)
+	}
+	registeredCodecInits[name] = c
 }
 
 // New will create an instance of the codec registered as name.
 func New(name string) (Codec, error) {
-	c, exists := registeredCodecs[name]
+	c, exists := registeredCodecInits[name]
 	if !exists {
-		return nil, fmt.Errorf("Codec %s doesn't exist", name)
+		return nil, ErrCodecNotRegistered
 	}
 	return c()
 }
