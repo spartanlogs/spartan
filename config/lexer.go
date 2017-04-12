@@ -44,13 +44,10 @@ func (l *lexer) nextToken() token {
 	// Operators
 	case '+':
 		tok = newByteToken(PLUS, l.curCh)
-		break
 	case '-':
 		tok = newByteToken(MINUS, l.curCh)
-		break
 	case '*':
 		tok = newByteToken(ASTERISK, l.curCh)
-		break
 	case '/':
 		if l.peekChar() == '/' {
 			l.readChar()
@@ -61,7 +58,6 @@ func (l *lexer) nextToken() token {
 		} else {
 			tok = newByteToken(SLASH, l.curCh)
 		}
-		break
 	case '!':
 		if l.peekChar() == '=' {
 			l.readChar()
@@ -69,7 +65,6 @@ func (l *lexer) nextToken() token {
 		} else {
 			tok = newByteToken(BANG, l.curCh)
 		}
-		break
 
 	// Equality
 	case '=':
@@ -82,42 +77,31 @@ func (l *lexer) nextToken() token {
 		} else {
 			tok = newByteToken(ILLEGAL, l.curCh)
 		}
-		break
 	case '<':
 		tok = newByteToken(LT, l.curCh)
-		break
 	case '>':
 		tok = newByteToken(GT, l.curCh)
-		break
 
 	// Control characters
 	case ',':
 		tok = newByteToken(COMMA, l.curCh)
-		break
 
 	// Groupings
 	case '{':
 		tok = newByteToken(LBRACE, l.curCh)
-		break
 	case '}':
 		tok = newByteToken(RBRACE, l.curCh)
-		break
 	case '[':
 		tok = newByteToken(LSQUARE, l.curCh)
-		break
 	case ']':
 		tok = newByteToken(RSQUARE, l.curCh)
-		break
 
 	case '"':
 		tok = newToken(STRING, l.readString())
-		break
 	case '#':
 		tok = newToken(COMMENT, l.readSingleLineComment())
-		break
 	case 0:
 		tok = newToken(EOF, "")
-		break
 
 	default:
 		if isLetter(l.curCh) {
