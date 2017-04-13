@@ -1,31 +1,33 @@
-package config
+package lexer
 
 import (
 	"bufio"
 	"bytes"
 	"io"
 	"strings"
+
+	"github.com/lfkeitel/spartan/config/token"
 )
 
-type lexer struct {
+type Lexer struct {
 	input  *bufio.Reader
 	curCh  byte // current char under examination
 	peekCh byte // peek character
 }
 
-func new(reader io.Reader) *lexer {
-	l := &lexer{input: bufio.NewReader(reader)}
+func New(reader io.Reader) *Lexer {
+	l := &Lexer{input: bufio.NewReader(reader)}
 	// Populate both current and peek char
 	l.readChar()
 	l.readChar()
 	return l
 }
 
-func newString(input string) *lexer {
-	return new(strings.NewReader(input))
+func NewString(input string) *Lexer {
+	return New(strings.NewReader(input))
 }
 
-func (l *lexer) readChar() {
+func (l *Lexer) readChar() {
 	l.curCh = l.peekCh
 
 	var err error
@@ -35,96 +37,101 @@ func (l *lexer) readChar() {
 	}
 }
 
-func (l *lexer) nextToken() token {
-	var tok token
+func (l *Lexer) NextToken() token.Token {
+	var tok token.Token
 
 	l.devourWhitespace()
 
 	switch l.curCh {
 	// Operators
 	case '+':
-		tok = newByteToken(PLUS, l.curCh)
+		tok = token.NewSimpleToken(token.PLUS)
 	case '-':
-		tok = newByteToken(MINUS, l.curCh)
+		tok = token.NewSimpleToken(token.MINUS)
 	case '*':
-		tok = newByteToken(ASTERISK, l.curCh)
+		tok = token.NewSimpleToken(token.ASTERISK)
 	case '/':
 		if l.peekChar() == '/' {
 			l.readChar()
-			tok = newToken(COMMENT, l.readSingleLineComment())
+			tok = token.NewToken(token.COMMENT, l.readSingleLineComment())
 		} else if l.peekChar() == '*' {
 			l.readChar()
-			tok = newToken(COMMENT, l.readMultiLineComment())
+			tok = token.NewToken(token.COMMENT, l.readMultiLineComment())
 		} else {
-			tok = newByteToken(SLASH, l.curCh)
+			tok = token.NewSimpleToken(token.SLASH)
 		}
 	case '!':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = newToken(NOT_EQ, "!=")
+			tok = token.NewSimpleToken(token.NOTEQ)
 		} else {
-			tok = newByteToken(BANG, l.curCh)
+			tok = token.NewSimpleToken(token.BANG)
 		}
 
 	// Equality
 	case '=':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = newToken(EQ, "==")
+			tok = token.NewSimpleToken(token.EQ)
 		} else if l.peekChar() == '>' {
 			l.readChar()
-			tok = newToken(ASSIGN, "=>")
+			tok = token.NewSimpleToken(token.ASSIGN)
 		} else {
-			tok = newByteToken(ILLEGAL, l.curCh)
+			tok = token.NewSimpleToken(token.ILLEGAL)
 		}
 	case '<':
-		tok = newByteToken(LT, l.curCh)
+		tok = token.NewSimpleToken(token.LT)
 	case '>':
-		tok = newByteToken(GT, l.curCh)
+		tok = token.NewSimpleToken(token.GT)
 
 	// Control characters
 	case ',':
-		tok = newByteToken(COMMA, l.curCh)
+		tok = token.NewSimpleToken(token.COMMA)
 
 	// Groupings
 	case '{':
-		tok = newByteToken(LBRACE, l.curCh)
+		tok = token.NewSimpleToken(token.LBRACE)
 	case '}':
-		tok = newByteToken(RBRACE, l.curCh)
+		tok = token.NewSimpleToken(token.RBRACE)
 	case '[':
-		tok = newByteToken(LSQUARE, l.curCh)
+		tok = token.NewSimpleToken(token.LSQUARE)
 	case ']':
-		tok = newByteToken(RSQUARE, l.curCh)
+		tok = token.NewSimpleToken(token.RSQUARE)
 
 	case '"':
-		tok = newToken(STRING, l.readString())
+		tok = token.NewToken(token.STRING, l.readString())
 	case '#':
-		tok = newToken(COMMENT, l.readSingleLineComment())
+		tok = token.NewToken(token.COMMENT, l.readSingleLineComment())
 	case 0:
-		tok = newToken(EOF, "")
+		tok = token.NewSimpleToken(token.EOF)
 
 	default:
 		if isLetter(l.curCh) {
 			lit := l.readIdentifier()
-			tok = newToken(lookupIdent(lit), lit)
+			tokType := token.LookupIdent(lit)
+			if token.IsKeyword(tokType) { // No need to save the literal keyword
+				tok = token.NewSimpleToken(tokType)
+			} else {
+				tok = token.NewToken(tokType, lit)
+			}
 			return tok
 		} else if isDigit(l.curCh) {
 			tok = l.readNumber()
 			return tok
 		}
 
-		tok = newByteToken(ILLEGAL, l.curCh)
+		tok = token.NewSimpleToken(token.ILLEGAL)
 	}
 
 	l.readChar()
 	return tok
 }
 
-func (l *lexer) peekChar() byte {
+func (l *Lexer) peekChar() byte {
 	return l.peekCh
 }
 
-func (l *lexer) readIdentifier() string {
+func (l *Lexer) readIdentifier() string {
 	var ident bytes.Buffer
 	for isLetter(l.curCh) {
 		ident.WriteByte(l.curCh)
@@ -134,7 +141,7 @@ func (l *lexer) readIdentifier() string {
 }
 
 // TODO: Support escape sequences, standard Go should be fine, or PHP.
-func (l *lexer) readString() string {
+func (l *Lexer) readString() string {
 	var ident bytes.Buffer
 	l.readChar() // Go past the starting double quote
 
@@ -146,24 +153,24 @@ func (l *lexer) readString() string {
 	return ident.String()
 }
 
-func (l *lexer) readNumber() token {
+func (l *Lexer) readNumber() token.Token {
 	var ident bytes.Buffer
-	numTokenType := INT
+	numTokenType := token.INT
 
 	for isDigit(l.curCh) {
 		// The parser will handle bad floats
-		if l.curCh == '.' && numTokenType == INT {
-			numTokenType = FLOAT
+		if l.curCh == '.' && numTokenType == token.INT {
+			numTokenType = token.FLOAT
 		}
 
 		ident.WriteByte(l.curCh)
 		l.readChar()
 	}
 
-	return newToken(tokenType(numTokenType), ident.String())
+	return token.NewToken(numTokenType, ident.String())
 }
 
-func (l *lexer) readSingleLineComment() string {
+func (l *Lexer) readSingleLineComment() string {
 	var com bytes.Buffer
 	l.readChar() // Go over # or / characters
 
@@ -174,7 +181,7 @@ func (l *lexer) readSingleLineComment() string {
 	return strings.TrimSpace(com.String())
 }
 
-func (l *lexer) readMultiLineComment() string {
+func (l *Lexer) readMultiLineComment() string {
 	var com bytes.Buffer
 	l.readChar() // Go over * character
 
@@ -190,7 +197,7 @@ func (l *lexer) readMultiLineComment() string {
 	return strings.TrimSpace(com.String())
 }
 
-func (l *lexer) devourWhitespace() {
+func (l *Lexer) devourWhitespace() {
 	for isWhitespace(l.curCh) {
 		l.readChar()
 	}
