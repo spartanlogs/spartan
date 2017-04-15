@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 )
 
 func init() {
@@ -14,7 +15,7 @@ func init() {
 
 type grokConfig struct {
 	field string
-	regex *regexp.Regexp
+	regex []*regexp.Regexp
 }
 
 // A GrokFilter processes event fields based on give regex patterns.
@@ -24,7 +25,7 @@ type GrokFilter struct {
 	config *grokConfig
 }
 
-func newGrokFilter(options map[string]interface{}) (Filter, error) {
+func newGrokFilter(options *utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	g := &GrokFilter{config: &grokConfig{}}
 	if err := g.setConfig(options); err != nil {
@@ -33,19 +34,31 @@ func newGrokFilter(options map[string]interface{}) (Filter, error) {
 	return g, nil
 }
 
-func (f *GrokFilter) setConfig(options map[string]interface{}) error {
-	if s, exists := options["field"]; exists {
+func (f *GrokFilter) setConfig(options *utils.InterfaceMap) error {
+	if s, exists := options.GetOK("field"); exists {
 		f.config.field = s.(string)
 	} else {
 		f.config.field = "message"
 	}
 
-	if s, exists := options["regex"]; exists {
-		r, err := regexp.Compile(interpolatePatterns(s.(string)))
-		if err != nil {
-			return fmt.Errorf("Regex failed to compile: %v", err)
+	if s, exists := options.GetOK("patterns"); exists {
+		var patterns []string
+		switch sTyped := s.(type) {
+		case []string:
+			patterns = sTyped
+		case string:
+			patterns = []string{sTyped}
+		default:
+			return errors.New("regex must be string or array of strings")
 		}
-		f.config.regex = r
+
+		for _, pattern := range patterns {
+			r, err := regexp.Compile(interpolatePatterns(pattern))
+			if err != nil {
+				return fmt.Errorf("Regex failed to compile: %v", err)
+			}
+			f.config.regex = append(f.config.regex, r)
+		}
 	} else {
 		return errors.New("Regex option required")
 	}
@@ -79,18 +92,27 @@ func (f *GrokFilter) Run(batch []*event.Event) []*event.Event {
 			continue
 		}
 
-		matches := f.config.regex.FindAllStringSubmatch(fieldStr, -1)
-		if len(matches) == 0 {
-			fmt.Printf("No matches")
-			event.AddTag("_grokparsefailure")
-			continue
-		}
-
-		for i, group := range f.config.regex.SubexpNames() {
-			if i == 0 {
+		matched := false
+	regexLoop:
+		for _, regex := range f.config.regex {
+			matches := regex.FindAllStringSubmatch(fieldStr, -1)
+			if len(matches) == 0 {
 				continue
 			}
-			event.Set(group, matches[0][i])
+			matched = true
+
+			for i, group := range regex.SubexpNames() {
+				if i == 0 {
+					continue
+				}
+				event.Set(group, matches[0][i])
+			}
+			break regexLoop
+		}
+
+		if !matched {
+			fmt.Printf("No matches")
+			event.AddTag("_grokparsefailure")
 		}
 	}
 

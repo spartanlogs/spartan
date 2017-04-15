@@ -1,6 +1,7 @@
 package outputs
 
 import "github.com/lfkeitel/spartan/event"
+import "github.com/lfkeitel/spartan/utils"
 
 func init() {
 	register("end", newEndOutput)
@@ -10,7 +11,7 @@ func init() {
 // to terminate an output chain. It simply returns as a no-op.
 type End struct{}
 
-func newEndOutput(options map[string]interface{}) (Output, error) {
+func newEndOutput(options *utils.InterfaceMap) (Output, error) {
 	return &End{}, nil
 }
 

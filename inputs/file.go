@@ -7,6 +7,7 @@ import (
 
 	"github.com/hpcloud/tail"
 	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 	"gopkg.in/tomb.v2"
 )
 
@@ -26,15 +27,15 @@ type FileInput struct {
 	out    chan<- *event.Event
 }
 
-func newFileInput(options map[string]interface{}) (Input, error) {
+func newFileInput(options *utils.InterfaceMap) (Input, error) {
 	i := &FileInput{
 		config: &fileConfig{},
 	}
 	return i, i.setConfig(options)
 }
 
-func (i *FileInput) setConfig(options map[string]interface{}) error {
-	if s, exists := options["path"]; exists {
+func (i *FileInput) setConfig(options *utils.InterfaceMap) error {
+	if s, exists := options.GetOK("path"); exists {
 		i.config.path = s.(string)
 	} else {
 		return errors.New("Path option required")

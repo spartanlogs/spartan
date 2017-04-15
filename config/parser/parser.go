@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -56,7 +57,54 @@ type PipelineDef struct {
 // on the supplied pattern. The files will effectivly be concatinated together
 // as a single configuration.
 func ParseGlob(pattern string) (*ParsedFile, error) {
-	return nil, utils.ErrNotImplemented
+	// This function works by replacing the state of the parser
+	// after reading each file. The parser keeps its *ParsedFile
+	// object after each parse so it simple expanded.
+
+	files, err := filepath.Glob(pattern)
+	if err != nil {
+		return nil, err
+	}
+	if len(files) == 0 {
+		return &ParsedFile{}, nil
+	}
+
+	file, err := os.Open(files[0])
+	if err != nil {
+		return nil, err
+	}
+
+	// First time using the parser is same as usual
+	p := newParser(lexer.New(file))
+	_, err = p.parse()
+	if err != nil {
+		file.Close()
+		return nil, err
+	}
+	file.Close()
+
+	// If other files need parsing, go over each file resetting the
+	// state of the parse before each subsequent parse.
+	for _, path := range files[1:] {
+		file, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+
+		// Reset parser state as if it was just created
+		p.lexer = lexer.New(file)
+		p.nextToken()
+		p.nextToken()
+
+		_, err = p.parse()
+		if err != nil {
+			file.Close()
+			return nil, err
+		}
+		file.Close()
+	}
+
+	return p.file, nil
 }
 
 // ParseFile parses a single file without any globing.

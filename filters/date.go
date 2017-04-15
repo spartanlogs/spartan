@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 )
 
 func init() {
@@ -26,7 +27,7 @@ type DateFilter struct {
 	config *dateConfig
 }
 
-func newDateFilter(options map[string]interface{}) (Filter, error) {
+func newDateFilter(options *utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &DateFilter{config: &dateConfig{}}
 	if err := f.setConfig(options); err != nil {
@@ -35,14 +36,14 @@ func newDateFilter(options map[string]interface{}) (Filter, error) {
 	return f, nil
 }
 
-func (f *DateFilter) setConfig(options map[string]interface{}) error {
-	if s, exists := options["field"]; exists {
+func (f *DateFilter) setConfig(options *utils.InterfaceMap) error {
+	if s, exists := options.GetOK("field"); exists {
 		f.config.field = s.(string)
 	} else {
 		return errors.New("Field option required")
 	}
 
-	if s, exists := options["patterns"]; exists {
+	if s, exists := options.GetOK("patterns"); exists {
 		switch s := s.(type) {
 		case string:
 			f.config.patterns = []string{s}
@@ -55,7 +56,7 @@ func (f *DateFilter) setConfig(options map[string]interface{}) error {
 		return errors.New("Patterns option required")
 	}
 
-	if s, exists := options["timezone"]; exists {
+	if s, exists := options.GetOK("timezone"); exists {
 		f.config.timezone = s.(string)
 	} else {
 		f.config.timezone = "UTC"

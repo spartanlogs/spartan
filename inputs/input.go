@@ -3,7 +3,9 @@ package inputs
 import (
 	"errors"
 
+	"github.com/lfkeitel/spartan/config/parser"
 	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 )
 
 // An Input generates events to be processed.
@@ -16,7 +18,7 @@ type Input interface {
 	Close() error
 }
 
-type initFunc func(map[string]interface{}) (Input, error)
+type initFunc func(*utils.InterfaceMap) (Input, error)
 
 var (
 	registeredInputInits map[string]initFunc
@@ -36,10 +38,26 @@ func register(name string, init initFunc) {
 }
 
 // New creates an instance of Input name with options. Options are dependent on the Input.
-func New(name string, options map[string]interface{}) (Input, error) {
+func New(name string, options *utils.InterfaceMap) (Input, error) {
 	init, exists := registeredInputInits[name]
 	if !exists {
 		return nil, ErrInputNotRegistered
 	}
 	return init(options)
+}
+
+// CreateFromDefs initalizes the inputs defined in the give slice.
+// An error will return if an input module doesn't exist.
+func CreateFromDefs(defs []*parser.InputDef) ([]Input, error) {
+	inputs := make([]Input, len(defs))
+
+	for i, def := range defs {
+		input, err := New(def.Module, def.Options)
+		if err != nil {
+			return nil, err
+		}
+		inputs[i] = input
+	}
+
+	return inputs, nil
 }

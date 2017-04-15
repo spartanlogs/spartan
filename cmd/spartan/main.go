@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/lfkeitel/spartan/config/parser"
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/filters"
 	"github.com/lfkeitel/spartan/inputs"
@@ -45,59 +46,32 @@ func main() {
 		return
 	}
 
-	grokOptions := map[string]interface{}{
-		"regex": `^(?P<logdate>%{MONTHDAY}[-]%{MONTH}[-]%{YEAR} %{TIME}) client %{IP:clientip}#%{POSINT:clientport} \(%{GREEDYDATA:query}\): query: %{GREEDYDATA:target} IN %{GREEDYDATA:querytype} \(%{IP:dns}\)$`,
-	}
-	dateOptions := map[string]interface{}{
-		"field":    "logdate",
-		"patterns": "02-Jan-2006 15:04:05.999999999",
-		"timezone": "America/Chicago",
-	}
-	mutateOptions := map[string]interface{}{
-		"action": "remove_field",
-		"fields": []string{"logdate", "message"},
-	}
-
-	// Inputs
-	file, err := inputs.New("file", map[string]interface{}{
-		"path": os.Args[1],
-	})
+	parsed, err := parser.ParseFile(filtersPath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	// Filters
-	mutateFilter, err := filters.New("mutate", mutateOptions)
+	inputMods, err := inputs.CreateFromDefs(parsed.Inputs)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	dateFilter, err := filters.New("date", dateOptions)
+	filterPipeline, err := filters.GeneratePipeline(parsed.Filters)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	grok, err := filters.New("grok", grokOptions)
+	outputPipeline, err := outputs.GeneratePipeline(parsed.Outputs)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	endFilter, _ := filters.New("end", nil)
-
-	filter := filters.NewFilterController(grok, 10)
-	grok.SetNext(dateFilter)
-	dateFilter.SetNext(mutateFilter)
-	mutateFilter.SetNext(endFilter)
-
-	// Outputs
-	stdout, _ := outputs.New("stdout", nil)
-	endOutput, _ := outputs.New("end", nil)
-	stdout.SetNext(endOutput)
-	output := outputs.NewOutputController(stdout, 10)
+	filterCont := filters.NewFilterController(filterPipeline, 10)
+	outputCont := outputs.NewOutputController(outputPipeline, 10)
 
 	// Communication channels
 	inputChan := make(chan *event.Event)
@@ -105,13 +79,15 @@ func main() {
 
 	// Start everything
 	fmt.Println("Starting outputs")
-	output.Start(outputChan)
+	outputCont.Start(outputChan)
 
 	fmt.Println("Starting filters")
-	filter.Start(inputChan, outputChan)
+	filterCont.Start(inputChan, outputChan)
 
 	fmt.Println("Starting inputs")
-	file.Start(inputChan)
+	for _, input := range inputMods {
+		input.Start(inputChan)
+	}
 
 	// Wait for Ctrl+C
 	fmt.Println("Waiting for signal")
@@ -121,13 +97,15 @@ func main() {
 
 	//Shutdown
 	fmt.Println("Shutting down inputs")
-	file.Close()
+	for _, input := range inputMods {
+		input.Close()
+	}
 
 	fmt.Println("Shutting down filters")
-	filter.Close()
+	filterCont.Close()
 
 	fmt.Println("Shutting down outputs")
-	output.Close()
+	outputCont.Close()
 }
 
 func displayVersionInfo() {

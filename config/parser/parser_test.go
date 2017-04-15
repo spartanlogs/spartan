@@ -210,54 +210,65 @@ func TestPipelineParser(t *testing.T) {
 	}
 }
 
+var fullExpectedFile = &ParsedFile{
+	Inputs: []*InputDef{{
+		Module: "file",
+		Options: utils.NewMap(map[string]interface{}{
+			"path": "",
+		}),
+	}},
+
+	Outputs: []*PipelineDef{{
+		Module: "stdout",
+		Options: utils.NewMap(map[string]interface{}{
+			"codec": "json",
+		}),
+	}},
+
+	Filters: []*PipelineDef{{
+		Module: "grok",
+		Options: utils.NewMap(map[string]interface{}{
+			"field": "message",
+			"patterns": []string{
+				`^(?<logdate>%{MONTHDAY}[-]%{MONTH}[-]%{YEAR} %{TIME}) client %{IP:clientip}#%{POSINT:clientport} \(%{GREEDYDATA:query}\): query: %{GREEDYDATA:target} IN %{GREEDYDATA:querytype} \(%{IP:dns}\)$`,
+			},
+		}),
+		Connections: []int{1},
+	}, {
+		Module: "date",
+		Options: utils.NewMap(map[string]interface{}{
+			"field":    "logdate",
+			"patterns": []string{"dd-MMM-yyyy HH:mm:ss.SSS"},
+			"timezone": "America/Chicago",
+		}),
+		Connections: []int{2},
+	}, {
+		Module: "mutate",
+		Options: utils.NewMap(map[string]interface{}{
+			"action": "remove_field",
+			"fields": []string{"logdate", "message"},
+		}),
+	}},
+}
+
 func TestFileParser(t *testing.T) {
 	pf, err := ParseFile("./testdata/filters.conf")
 	if err != nil {
 		t.Fatalf("Unexpected error %s", err.Error())
 	}
 
-	expected := &ParsedFile{
-		Inputs: []*InputDef{{
-			Module: "file",
-			Options: utils.NewMap(map[string]interface{}{
-				"path": "",
-			}),
-		}},
+	if !reflect.DeepEqual(fullExpectedFile, pf) {
+		t.Fatal("Incorrect ParsedFile")
+	}
+}
 
-		Outputs: []*PipelineDef{{
-			Module: "stdout",
-			Options: utils.NewMap(map[string]interface{}{
-				"codec": "json",
-			}),
-		}},
-
-		Filters: []*PipelineDef{{
-			Module: "grok",
-			Options: utils.NewMap(map[string]interface{}{
-				"field": "message",
-				"patterns": []string{
-					`^(?<logdate>%{MONTHDAY}[-]%{MONTH}[-]%{YEAR} %{TIME}) client %{IP:clientip}#%{POSINT:clientport} \(%{GREEDYDATA:query}\): query: %{GREEDYDATA:target} IN %{GREEDYDATA:querytype} \(%{IP:dns}\)$`,
-				},
-			}),
-			Connections: []int{1},
-		}, {
-			Module: "date",
-			Options: utils.NewMap(map[string]interface{}{
-				"field":    "logdate",
-				"patterns": []string{"dd-MMM-yyyy HH:mm:ss.SSS"},
-				"timezone": "America/Chicago",
-			}),
-			Connections: []int{2},
-		}, {
-			Module: "mutate",
-			Options: utils.NewMap(map[string]interface{}{
-				"action": "remove_field",
-				"fields": []string{"logdate", "message"},
-			}),
-		}},
+func TestFileGlobParser(t *testing.T) {
+	pf, err := ParseGlob("./testdata/filters/*.conf")
+	if err != nil {
+		t.Fatalf("Unexpected error %s", err.Error())
 	}
 
-	if !reflect.DeepEqual(expected, pf) {
+	if !reflect.DeepEqual(fullExpectedFile, pf) {
 		t.Fatal("Incorrect ParsedFile")
 	}
 }

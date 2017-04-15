@@ -5,6 +5,7 @@ import (
 
 	"github.com/lfkeitel/spartan/codecs"
 	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 )
 
 func init() {
@@ -21,7 +22,7 @@ type StdOutOutput struct {
 	next   Output
 }
 
-func newStdOutOutput(options map[string]interface{}) (Output, error) {
+func newStdOutOutput(options *utils.InterfaceMap) (Output, error) {
 	options = checkOptionsMap(options)
 	o := &StdOutOutput{config: &stdOutConfig{}}
 	if err := o.setConfig(options); err != nil {
@@ -30,8 +31,8 @@ func newStdOutOutput(options map[string]interface{}) (Output, error) {
 	return o, nil
 }
 
-func (o *StdOutOutput) setConfig(options map[string]interface{}) error {
-	if s, exists := options["codec"]; exists {
+func (o *StdOutOutput) setConfig(options *utils.InterfaceMap) error {
+	if s, exists := options.GetOK("codec"); exists {
 		c, err := codecs.New(s.(string))
 		if err != nil {
 			return err

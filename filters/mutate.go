@@ -26,7 +26,7 @@ type MutateFilter struct {
 	config *mutateConfig
 }
 
-func newMutateFilter(options map[string]interface{}) (Filter, error) {
+func newMutateFilter(options *utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &MutateFilter{config: &mutateConfig{}}
 	if err := f.setConfig(options); err != nil {
@@ -35,8 +35,8 @@ func newMutateFilter(options map[string]interface{}) (Filter, error) {
 	return f, nil
 }
 
-func (f *MutateFilter) setConfig(options map[string]interface{}) error {
-	if s, exists := options["fields"]; exists {
+func (f *MutateFilter) setConfig(options *utils.InterfaceMap) error {
+	if s, exists := options.GetOK("fields"); exists {
 		switch s := s.(type) {
 		case string:
 			f.config.fields = []string{s}
@@ -49,7 +49,7 @@ func (f *MutateFilter) setConfig(options map[string]interface{}) error {
 		return errors.New("Fields option required")
 	}
 
-	if s, exists := options["action"]; exists {
+	if s, exists := options.GetOK("action"); exists {
 		f.config.action = s.(string)
 		if !f.isValidAction(f.config.action) {
 			return fmt.Errorf("%s is not a valid mutate action", f.config.action)

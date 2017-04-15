@@ -1,6 +1,7 @@
 package filters
 
 import "github.com/lfkeitel/spartan/event"
+import "github.com/lfkeitel/spartan/utils"
 
 func init() {
 	register("end", newEndFilter)
@@ -10,7 +11,7 @@ func init() {
 // to terminate a filter chain. It simply returns any batch it's given.
 type End struct{}
 
-func newEndFilter(options map[string]interface{}) (Filter, error) {
+func newEndFilter(options *utils.InterfaceMap) (Filter, error) {
 	return &End{}, nil
 }
 

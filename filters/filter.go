@@ -3,7 +3,9 @@ package filters
 import (
 	"errors"
 
+	"github.com/lfkeitel/spartan/config/parser"
 	"github.com/lfkeitel/spartan/event"
+	"github.com/lfkeitel/spartan/utils"
 )
 
 // A Filter is used to manipulate and parse an Event. A Filter receives a batch of events
@@ -17,7 +19,7 @@ type Filter interface {
 	Run(batch []*event.Event) []*event.Event
 }
 
-type initFunc func(map[string]interface{}) (Filter, error)
+type initFunc func(*utils.InterfaceMap) (Filter, error)
 
 var (
 	registeredFilterInits map[string]initFunc
@@ -37,10 +39,40 @@ func register(name string, init initFunc) {
 }
 
 // New creates an instance of Filter name with options. Options are dependent on the Filter.
-func New(name string, options map[string]interface{}) (Filter, error) {
+func New(name string, options *utils.InterfaceMap) (Filter, error) {
 	init, exists := registeredFilterInits[name]
 	if !exists {
 		return nil, ErrFilterNotRegistered
 	}
 	return init(options)
+}
+
+// GeneratePipeline creates an filter pipeline. The returned Filter is the starting
+// point in the pipeline. All other filters have been chained together in their
+// defined order. An error will be returned if a filter doesn't exist.
+func GeneratePipeline(defs []*parser.PipelineDef) (Filter, error) {
+	filters := make([]Filter, len(defs))
+
+	// Generate filters
+	for i, def := range defs {
+		filter, err := New(def.Module, def.Options)
+		if err != nil {
+			return nil, err
+		}
+		filters[i] = filter
+	}
+
+	// Connect filters
+	for i, filter := range filters {
+		switch len(defs[i].Connections) {
+		case 0: // End of a pipeline
+			filter.SetNext(&End{})
+		case 1: // Normal next filter
+			filter.SetNext(filters[defs[i].Connections[0]])
+		case 3: // If statement
+			return nil, utils.ErrNotImplemented
+		}
+	}
+
+	return filters[0], nil
 }
