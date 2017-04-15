@@ -13,10 +13,16 @@ type Lexer struct {
 	input  *bufio.Reader
 	curCh  byte // current char under examination
 	peekCh byte // peek character
+	line   int  // line in source file
+	column int  // column in current line
 }
 
 func New(reader io.Reader) *Lexer {
-	l := &Lexer{input: bufio.NewReader(reader)}
+	l := &Lexer{
+		input:  bufio.NewReader(reader),
+		line:   1,
+		column: 1,
+	}
 	// Populate both current and peek char
 	l.readChar()
 	l.readChar()
@@ -35,6 +41,14 @@ func (l *Lexer) readChar() {
 	if err != nil {
 		l.peekCh = 0
 	}
+
+	if l.curCh == '\r' {
+		l.readChar()
+	} else if l.curCh == '\n' {
+		l.line++
+		l.column = 0
+	}
+	l.column++
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -45,74 +59,74 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.curCh {
 	// Operators
 	case '+':
-		tok = token.NewSimpleToken(token.PLUS)
+		tok = token.NewSimpleToken(token.PLUS, l.line, l.column)
 	case '-':
-		tok = token.NewSimpleToken(token.MINUS)
+		tok = token.NewSimpleToken(token.MINUS, l.line, l.column)
 	case '*':
-		tok = token.NewSimpleToken(token.ASTERISK)
+		tok = token.NewSimpleToken(token.ASTERISK, l.line, l.column)
 	case '/':
 		if l.peekChar() == '/' {
 			l.readChar()
-			tok = token.NewToken(token.COMMENT, l.readSingleLineComment())
+			tok = token.NewToken(token.COMMENT, l.readSingleLineComment(), l.line, l.column)
 		} else if l.peekChar() == '*' {
 			l.readChar()
-			tok = token.NewToken(token.COMMENT, l.readMultiLineComment())
+			tok = token.NewToken(token.COMMENT, l.readMultiLineComment(), l.line, l.column)
 		} else {
-			tok = token.NewSimpleToken(token.SLASH)
+			tok = token.NewSimpleToken(token.SLASH, l.line, l.column)
 		}
 	case '!':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token.NewSimpleToken(token.NOTEQ)
+			tok = token.NewSimpleToken(token.NOTEQ, l.line, l.column)
 		} else {
-			tok = token.NewSimpleToken(token.BANG)
+			tok = token.NewSimpleToken(token.BANG, l.line, l.column)
 		}
 
 	// Equality
 	case '=':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token.NewSimpleToken(token.EQ)
+			tok = token.NewSimpleToken(token.EQ, l.line, l.column)
 		} else if l.peekChar() == '>' {
 			l.readChar()
-			tok = token.NewSimpleToken(token.ASSIGN)
+			tok = token.NewSimpleToken(token.ASSIGN, l.line, l.column)
 		} else {
-			tok = token.NewSimpleToken(token.ILLEGAL)
+			tok = token.NewSimpleToken(token.ILLEGAL, l.line, l.column)
 		}
 	case '<':
-		tok = token.NewSimpleToken(token.LT)
+		tok = token.NewSimpleToken(token.LT, l.line, l.column)
 	case '>':
-		tok = token.NewSimpleToken(token.GT)
+		tok = token.NewSimpleToken(token.GT, l.line, l.column)
 
 	// Control characters
 	case ',':
-		tok = token.NewSimpleToken(token.COMMA)
+		tok = token.NewSimpleToken(token.COMMA, l.line, l.column)
 
 	// Groupings
 	case '{':
-		tok = token.NewSimpleToken(token.LBRACE)
+		tok = token.NewSimpleToken(token.LBRACE, l.line, l.column)
 	case '}':
-		tok = token.NewSimpleToken(token.RBRACE)
+		tok = token.NewSimpleToken(token.RBRACE, l.line, l.column)
 	case '[':
-		tok = token.NewSimpleToken(token.LSQUARE)
+		tok = token.NewSimpleToken(token.LSQUARE, l.line, l.column)
 	case ']':
-		tok = token.NewSimpleToken(token.RSQUARE)
+		tok = token.NewSimpleToken(token.RSQUARE, l.line, l.column)
 
 	case '"':
-		tok = token.NewToken(token.STRING, l.readString())
+		tok = token.NewToken(token.STRING, l.readString(), l.line, l.column)
 	case '#':
-		tok = token.NewToken(token.COMMENT, l.readSingleLineComment())
+		tok = token.NewToken(token.COMMENT, l.readSingleLineComment(), l.line, l.column)
 	case 0:
-		tok = token.NewSimpleToken(token.EOF)
+		tok = token.NewSimpleToken(token.EOF, l.line, l.column)
 
 	default:
 		if isLetter(l.curCh) {
 			lit := l.readIdentifier()
 			tokType := token.LookupIdent(lit)
 			if token.IsKeyword(tokType) { // No need to save the literal keyword
-				tok = token.NewSimpleToken(tokType)
+				tok = token.NewSimpleToken(tokType, l.line, l.column)
 			} else {
-				tok = token.NewToken(tokType, lit)
+				tok = token.NewToken(tokType, lit, l.line, l.column)
 			}
 			return tok
 		} else if isDigit(l.curCh) {
@@ -120,7 +134,7 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 		}
 
-		tok = token.NewSimpleToken(token.ILLEGAL)
+		tok = token.NewSimpleToken(token.ILLEGAL, l.line, l.column)
 	}
 
 	l.readChar()
@@ -167,7 +181,7 @@ func (l *Lexer) readNumber() token.Token {
 		l.readChar()
 	}
 
-	return token.NewToken(numTokenType, ident.String())
+	return token.NewToken(numTokenType, ident.String(), l.line, l.column)
 }
 
 func (l *Lexer) readSingleLineComment() string {

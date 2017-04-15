@@ -8,8 +8,9 @@ type Type int
 // Token holds the type and literal representation for
 // a lexical token.
 type Token struct {
-	Type    Type
-	Literal string
+	Type         Type
+	Literal      string
+	Line, Column int
 }
 
 // The lexical tokens.
@@ -157,12 +158,17 @@ func IsKeyword(t Type) bool {
 
 // NewSimpleToken returns a Token with no literal representation
 // beyond what can be obtained with Type.String().
-func NewSimpleToken(tokType Type) Token {
-	return NewToken(tokType, "")
+func NewSimpleToken(tokType Type, line, col int) Token {
+	return NewToken(tokType, "", line, col)
 }
 
 // NewToken creates a Token with the type tokType and literal
 // representation lit.
-func NewToken(tokType Type, lit string) Token {
-	return Token{Type: tokType, Literal: lit}
+func NewToken(tokType Type, lit string, line, col int) Token {
+	return Token{
+		Type:    tokType,
+		Literal: lit,
+		Line:    line,
+		Column:  col,
+	}
 }
