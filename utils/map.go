@@ -16,6 +16,13 @@ func NewInterfaceMap() *InterfaceMap {
 	}
 }
 
+// NewMap creates an InterfaceMap using an existing map.
+func NewMap(data map[string]interface{}) *InterfaceMap {
+	return &InterfaceMap{
+		d: data,
+	}
+}
+
 // Set the key to val.
 func (m *InterfaceMap) Set(key string, val interface{}) {
 	m.d[key] = val
