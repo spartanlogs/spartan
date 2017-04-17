@@ -70,8 +70,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	filterCont := filters.NewFilterController(filterPipeline, 10)
-	outputCont := outputs.NewOutputController(outputPipeline, 10)
+	filterCont := filters.NewFilterController(filterPipeline, 25)
+	outputCont := outputs.NewOutputController(outputPipeline, 25)
 
 	// Communication channels
 	inputChan := make(chan *event.Event)

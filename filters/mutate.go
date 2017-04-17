@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -22,7 +23,6 @@ type mutateConfig struct {
 // A MutateFilter is used to perform several different actions on an Event.
 // See the documentation for the Mutate filter for more information.
 type MutateFilter struct {
-	next   Filter
 	config *mutateConfig
 }
 
@@ -65,20 +65,15 @@ func (f *MutateFilter) isValidAction(action string) bool {
 	return utils.StringInSlice(action, mutateActions)
 }
 
-// SetNext sets the next Filter in line.
-func (f *MutateFilter) SetNext(next Filter) {
-	f.next = next
-}
-
 // Run processes a batch.
-func (f *MutateFilter) Run(batch []*event.Event) []*event.Event {
+func (f *MutateFilter) Run(ctx context.Context, batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		switch f.config.action {
 		case "remove_field":
 			f.removeField(event)
 		}
 	}
-	return f.next.Run(batch)
+	return batch
 }
 
 func (f *MutateFilter) removeField(e *event.Event) {

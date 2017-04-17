@@ -1,11 +1,12 @@
 package filters
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/lfkeitel/spartan/event"
 
-	"github.com/lfkeitel/spartan/utils"
 	tomb "gopkg.in/tomb.v2"
 )
 
@@ -72,8 +73,24 @@ func (f *FilterController) run() error {
 			}
 		}
 
-		fmt.Println("Processing batch")
-		batch = f.start.Run(batch)
+		// Weird bugfix for Windows when shutting down in PowerShell.
+		if currentBatch == 0 {
+			if stopping {
+				return nil
+			}
+			continue
+		}
+
+		// Can happen do to the go routine dying
+		// or the batch timeout was exceeded.
+		if currentBatch < f.batchSize {
+			batch = batch[:currentBatch]
+		}
+
+		fmt.Printf("Processing batch of %d\n", len(batch))
+		start := time.Now()
+		batch = f.start.Run(context.TODO(), batch)
+		fmt.Println(time.Since(start))
 
 		for _, event := range batch {
 			f.out <- event
@@ -83,12 +100,4 @@ func (f *FilterController) run() error {
 			return nil
 		}
 	}
-}
-
-// checkOptionsMap ensures an option map is never nil.
-func checkOptionsMap(o *utils.InterfaceMap) *utils.InterfaceMap {
-	if o == nil {
-		o = utils.NewInterfaceMap()
-	}
-	return o
 }

@@ -150,6 +150,9 @@ func newParser(l *lexer.Lexer) *parser {
 func (p *parser) nextToken() token.Token {
 	p.curTok = p.peekTok
 	p.peekTok = p.lexer.NextToken()
+	if p.curTok.Type == token.COMMENT {
+		return p.nextToken()
+	}
 	return p.curTok
 }
 

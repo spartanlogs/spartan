@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
@@ -21,7 +22,6 @@ type grokConfig struct {
 // A GrokFilter processes event fields based on give regex patterns.
 // The first pattern to match is used for field data.
 type GrokFilter struct {
-	next   Filter
 	config *grokConfig
 }
 
@@ -66,13 +66,8 @@ func (f *GrokFilter) setConfig(options *utils.InterfaceMap) error {
 	return nil
 }
 
-// SetNext sets the next Filter in line.
-func (f *GrokFilter) SetNext(next Filter) {
-	f.next = next
-}
-
 // Run processes a batch.
-func (f *GrokFilter) Run(batch []*event.Event) []*event.Event {
+func (f *GrokFilter) Run(ctx context.Context, batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		if event == nil {
 			continue
@@ -116,5 +111,5 @@ func (f *GrokFilter) Run(batch []*event.Event) []*event.Event {
 		}
 	}
 
-	return f.next.Run(batch)
+	return batch
 }

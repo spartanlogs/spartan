@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -23,7 +24,6 @@ type dateConfig struct {
 // A field is tested against an array of date patterns and if on matches,
 // the resulting parsed time is set as the Events timestamp.
 type DateFilter struct {
-	next   Filter
 	config *dateConfig
 }
 
@@ -65,13 +65,8 @@ func (f *DateFilter) setConfig(options *utils.InterfaceMap) error {
 	return nil
 }
 
-// SetNext sets the next Filter in line.
-func (f *DateFilter) SetNext(next Filter) {
-	f.next = next
-}
-
 // Run processes a batch.
-func (f *DateFilter) Run(batch []*event.Event) []*event.Event {
+func (f *DateFilter) Run(ctx context.Context, batch []*event.Event) []*event.Event {
 	for _, event := range batch {
 		field := event.Get(f.config.field)
 		if field == nil {
@@ -98,5 +93,5 @@ func (f *DateFilter) Run(batch []*event.Event) []*event.Event {
 			break
 		}
 	}
-	return f.next.Run(batch)
+	return batch
 }

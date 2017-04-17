@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/lfkeitel/spartan/event"
-	"github.com/lfkeitel/spartan/utils"
 
 	tomb "gopkg.in/tomb.v2"
 )
@@ -78,12 +77,4 @@ func (o *OutputController) run() error {
 			return nil
 		}
 	}
-}
-
-// checkOptionsMap ensures an option map is never nil.
-func checkOptionsMap(o *utils.InterfaceMap) *utils.InterfaceMap {
-	if o == nil {
-		o = utils.NewInterfaceMap()
-	}
-	return o
 }

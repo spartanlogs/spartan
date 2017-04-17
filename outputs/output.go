@@ -51,6 +51,10 @@ func New(name string, options *utils.InterfaceMap) (Output, error) {
 func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 	outputs := make([]Output, len(defs))
 
+	if len(defs) == 0 {
+		return &end{}, nil
+	}
+
 	// Generate outputs
 	for i, def := range defs {
 		output, err := New(def.Module, def.Options)
@@ -64,7 +68,7 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 	for i, output := range outputs {
 		switch len(defs[i].Connections) {
 		case 0: // End of a pipeline
-			output.SetNext(&End{})
+			output.SetNext(&end{})
 		case 1: // Normal next output
 			output.SetNext(outputs[defs[i].Connections[0]])
 		case 3: // If statement
@@ -73,4 +77,12 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 	}
 
 	return outputs[0], nil
+}
+
+// checkOptionsMap ensures an option map is never nil.
+func checkOptionsMap(o *utils.InterfaceMap) *utils.InterfaceMap {
+	if o == nil {
+		o = utils.NewInterfaceMap()
+	}
+	return o
 }

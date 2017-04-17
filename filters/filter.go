@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"errors"
 
 	"github.com/lfkeitel/spartan/config/parser"
@@ -12,11 +13,17 @@ import (
 // and must return a slice of events. Events may be removed, edited, or added. Once a filter
 // is done processing, it should call the next Filter in line with its processed event batch.
 type Filter interface {
+	// Run processes a batch.
+	Run(ctx context.Context, batch []*event.Event) []*event.Event
+}
+
+// A FilterWrapper wraps the execution of a filter to enforce deadlines and other external functions.
+type FilterWrapper interface {
 	// SetNext sets the next Filter in line.
-	SetNext(next Filter)
+	SetNext(next FilterWrapper)
 
 	// Run processes a batch.
-	Run(batch []*event.Event) []*event.Event
+	Run(ctx context.Context, batch []*event.Event) []*event.Event
 }
 
 type initFunc func(*utils.InterfaceMap) (Filter, error)
@@ -50,8 +57,12 @@ func New(name string, options *utils.InterfaceMap) (Filter, error) {
 // GeneratePipeline creates an filter pipeline. The returned Filter is the starting
 // point in the pipeline. All other filters have been chained together in their
 // defined order. An error will be returned if a filter doesn't exist.
-func GeneratePipeline(defs []*parser.PipelineDef) (Filter, error) {
+func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 	filters := make([]Filter, len(defs))
+
+	if len(defs) == 0 {
+		return newFilterWrapper(nil), nil
+	}
 
 	// Generate filters
 	for i, def := range defs {
@@ -62,17 +73,34 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Filter, error) {
 		filters[i] = filter
 	}
 
-	// Connect filters
+	wrappers := make([]FilterWrapper, len(defs))
+
+	// Wrap filters
 	for i, filter := range filters {
 		switch len(defs[i].Connections) {
 		case 0: // End of a pipeline
-			filter.SetNext(&End{})
+			wrappers[i] = newFilterWrapper(nil)
 		case 1: // Normal next filter
-			filter.SetNext(filters[defs[i].Connections[0]])
+			wrappers[i] = newFilterWrapper(filter)
 		case 3: // If statement
 			return nil, utils.ErrNotImplemented
 		}
 	}
 
-	return filters[0], nil
+	// Connect wrappers
+	for i, wrapper := range wrappers {
+		if i < len(wrappers)-1 {
+			wrapper.SetNext(wrappers[i+1])
+		}
+	}
+
+	return wrappers[0], nil
+}
+
+// checkOptionsMap ensures an option map is never nil.
+func checkOptionsMap(o *utils.InterfaceMap) *utils.InterfaceMap {
+	if o == nil {
+		o = utils.NewInterfaceMap()
+	}
+	return o
 }
