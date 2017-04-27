@@ -293,6 +293,10 @@ mapLoop:
 			val := p.curTok
 
 			switch val.Type {
+			case token.TRUE:
+				m.Set(key, true)
+			case token.FALSE:
+				m.Set(key, false)
 			case token.STRING:
 				m.Set(key, val.Literal)
 			case token.INT:
@@ -322,7 +326,15 @@ mapLoop:
 				m.Set(key, subMap)
 				continue mapLoop
 			default:
-				return nil, p.tokenError(token.STRING, token.INT, token.FLOAT, token.LBRACE, token.LSQUARE)
+				return nil, p.tokenError(
+					token.STRING,
+					token.INT,
+					token.FLOAT,
+					token.TRUE,
+					token.FALSE,
+					token.LBRACE,
+					token.LSQUARE,
+				)
 			}
 		default:
 			return nil, fmt.Errorf("map key must be a string: %s", p.curTok.Type)
