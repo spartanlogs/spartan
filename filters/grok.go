@@ -15,8 +15,9 @@ func init() {
 }
 
 type grokConfig struct {
-	field string
-	regex []*regexp.Regexp
+	field              string
+	regex              []*regexp.Regexp
+	ignoreMissingField bool
 }
 
 // A GrokFilter processes event fields based on give regex patterns.
@@ -63,11 +64,15 @@ func (f *GrokFilter) setConfig(options *utils.InterfaceMap) error {
 		return errors.New("Regex option required")
 	}
 
+	if s, exists := options.GetOK("ignore_missing"); exists {
+		f.config.ignoreMissingField = s.(bool)
+	}
+
 	return nil
 }
 
-// Run processes a batch.
-func (f *GrokFilter) Run(ctx context.Context, batch []*event.Event) []*event.Event {
+// Filter processes a batch.
+func (f *GrokFilter) Filter(ctx context.Context, batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
 	for _, event := range batch {
 		if event == nil {
 			continue
@@ -75,8 +80,10 @@ func (f *GrokFilter) Run(ctx context.Context, batch []*event.Event) []*event.Eve
 
 		field := event.Get(f.config.field)
 		if field == nil {
-			fmt.Printf("Field %s doesn't exist\n", f.config.field)
-			event.AddTag("_grokparsefailure")
+			if !f.config.ignoreMissingField {
+				fmt.Printf("Field %s doesn't exist\n", f.config.field)
+				event.AddTag("_grokparsefailure")
+			}
 			continue
 		}
 
@@ -105,8 +112,9 @@ func (f *GrokFilter) Run(ctx context.Context, batch []*event.Event) []*event.Eve
 			break regexLoop
 		}
 
-		if !matched {
-			fmt.Printf("No matches")
+		if matched {
+			matchedFunc(event)
+		} else {
 			event.AddTag("_grokparsefailure")
 		}
 	}

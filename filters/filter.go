@@ -14,7 +14,7 @@ import (
 // is done processing, it should call the next Filter in line with its processed event batch.
 type Filter interface {
 	// Run processes a batch.
-	Run(ctx context.Context, batch []*event.Event) []*event.Event
+	Filter(ctx context.Context, batch []*event.Event, matched MatchFunc) []*event.Event
 }
 
 // A FilterWrapper wraps the execution of a filter to enforce deadlines and other external functions.
@@ -26,18 +26,22 @@ type FilterWrapper interface {
 	Run(ctx context.Context, batch []*event.Event) []*event.Event
 }
 
-type initFunc func(*utils.InterfaceMap) (Filter, error)
+// InitFunc is registered with this package as an initializer for a Filter
+type InitFunc func(*utils.InterfaceMap) (Filter, error)
+
+// MatchFunc is ran by a filter for a matching event
+type MatchFunc func(*event.Event)
 
 var (
-	registeredFilterInits map[string]initFunc
+	registeredFilterInits map[string]InitFunc
 
 	// ErrFilterNotRegistered is returned when attempting to create an unregistered Filter.
 	ErrFilterNotRegistered = errors.New("Filter doesn't exist")
 )
 
-func register(name string, init initFunc) {
+func register(name string, init InitFunc) {
 	if registeredFilterInits == nil {
-		registeredFilterInits = make(map[string]initFunc)
+		registeredFilterInits = make(map[string]InitFunc)
 	}
 	if _, exists := registeredFilterInits[name]; exists {
 		panic("Duplicate registration of filter module: " + name)
@@ -61,7 +65,8 @@ func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 	filters := make([]Filter, len(defs))
 
 	if len(defs) == 0 {
-		return newFilterWrapper(nil), nil
+		fw, _ := newFilterWrapper(nil, nil)
+		return fw, nil
 	}
 
 	// Generate filters
@@ -79,19 +84,22 @@ func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 	for i, filter := range filters {
 		switch len(defs[i].Connections) {
 		case 0: // End of a pipeline
-			wrappers[i] = newFilterWrapper(nil)
+			fw, _ := newFilterWrapper(nil, nil)
+			wrappers[i] = fw
 		case 1: // Normal next filter
-			wrappers[i] = newFilterWrapper(filter)
+			fw, err := newFilterWrapper(filter, defs[i].Options)
+			if err != nil {
+				return nil, err
+			}
+			wrappers[i] = fw
 		case 3: // If statement
 			return nil, utils.ErrNotImplemented
 		}
 	}
 
 	// Connect wrappers
-	for i, wrapper := range wrappers {
-		if i < len(wrappers)-1 {
-			wrapper.SetNext(wrappers[i+1])
-		}
+	for i, wrapper := range wrappers[:len(wrappers)-1] {
+		wrapper.SetNext(wrappers[i+1])
 	}
 
 	return wrappers[0], nil
