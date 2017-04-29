@@ -28,7 +28,7 @@ type Event struct {
 	etype     string
 	message   string
 	tags      []string
-	data      *utils.InterfaceMap
+	data      utils.InterfaceMap
 }
 
 // New creates a new Event object setting its message to message.
@@ -46,7 +46,7 @@ func New(message string) *Event {
 // are the Event's field names. The returned map is safe for the caller to
 // manipulate as it's a copy of the underlying map in the Event. This method
 // is intented for output/codecs modules to encode the Event.
-func (e *Event) Squash() *utils.InterfaceMap {
+func (e *Event) Squash() utils.InterfaceMap {
 	e.Lock()
 	dataCopy := e.data.Copy()
 

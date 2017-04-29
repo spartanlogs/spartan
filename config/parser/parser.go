@@ -32,14 +32,14 @@ type ParsedFile struct {
 // InputDef defines the module name and options map of an input.
 type InputDef struct {
 	Module  string
-	Options *utils.InterfaceMap
+	Options utils.InterfaceMap
 }
 
 // PipelineDef defines a pipeline object (Filter/Output). It contains
 // the module name, options map, and connections to the rest of the pipeline.
 type PipelineDef struct {
 	Module  string
-	Options *utils.InterfaceMap
+	Options utils.InterfaceMap
 
 	// Connections is a slice of index numbers corresponding to the index of
 	// a pipeline definition in the parent ParsedFile struct.
@@ -263,7 +263,7 @@ func (p *parser) parsePipelineDefs() ([]*PipelineDef, error) {
 	return modules, nil
 }
 
-func (p *parser) parseMap() (*utils.InterfaceMap, error) {
+func (p *parser) parseMap() (utils.InterfaceMap, error) {
 	if p.curTok.Type != token.LBRACE {
 		return nil, p.tokenError(token.LBRACE)
 	}
@@ -293,6 +293,10 @@ mapLoop:
 			val := p.curTok
 
 			switch val.Type {
+			case token.TRUE:
+				m.Set(key, true)
+			case token.FALSE:
+				m.Set(key, false)
 			case token.STRING:
 				m.Set(key, val.Literal)
 			case token.INT:
@@ -322,7 +326,15 @@ mapLoop:
 				m.Set(key, subMap)
 				continue mapLoop
 			default:
-				return nil, p.tokenError(token.STRING, token.INT, token.FLOAT, token.LBRACE, token.LSQUARE)
+				return nil, p.tokenError(
+					token.STRING,
+					token.INT,
+					token.FLOAT,
+					token.TRUE,
+					token.FALSE,
+					token.LBRACE,
+					token.LSQUARE,
+				)
 			}
 		default:
 			return nil, fmt.Errorf("map key must be a string: %s", p.curTok.Type)

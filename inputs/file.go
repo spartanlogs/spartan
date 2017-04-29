@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	register("file", newFileInput)
+	Register("file", newFileInput)
 }
 
 type fileConfig struct {
@@ -27,14 +27,14 @@ type FileInput struct {
 	out    chan<- *event.Event
 }
 
-func newFileInput(options *utils.InterfaceMap) (Input, error) {
+func newFileInput(options utils.InterfaceMap) (Input, error) {
 	i := &FileInput{
 		config: &fileConfig{},
 	}
 	return i, i.setConfig(options)
 }
 
-func (i *FileInput) setConfig(options *utils.InterfaceMap) error {
+func (i *FileInput) setConfig(options utils.InterfaceMap) error {
 	if s, exists := options.GetOK("path"); exists {
 		i.config.path = s.(string)
 	} else {

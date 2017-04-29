@@ -7,7 +7,7 @@ import "github.com/lfkeitel/spartan/utils"
 // to terminate an output chain. It simply returns as a no-op.
 type end struct{}
 
-func newEndOutput(options *utils.InterfaceMap) (Output, error) {
+func newEndOutput(options utils.InterfaceMap) (Output, error) {
 	return &end{}, nil
 }
 

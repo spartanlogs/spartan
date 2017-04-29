@@ -3,7 +3,6 @@ package filters
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/lfkeitel/spartan/event"
@@ -11,7 +10,7 @@ import (
 )
 
 func init() {
-	register("date", newDateFilter)
+	Register("date", newDateFilter)
 }
 
 type dateConfig struct {
@@ -27,7 +26,7 @@ type DateFilter struct {
 	config *dateConfig
 }
 
-func newDateFilter(options *utils.InterfaceMap) (Filter, error) {
+func newDateFilter(options utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &DateFilter{config: &dateConfig{}}
 	if err := f.setConfig(options); err != nil {
@@ -36,7 +35,7 @@ func newDateFilter(options *utils.InterfaceMap) (Filter, error) {
 	return f, nil
 }
 
-func (f *DateFilter) setConfig(options *utils.InterfaceMap) error {
+func (f *DateFilter) setConfig(options utils.InterfaceMap) error {
 	if s, exists := options.GetOK("field"); exists {
 		f.config.field = s.(string)
 	} else {
@@ -58,6 +57,11 @@ func (f *DateFilter) setConfig(options *utils.InterfaceMap) error {
 
 	if s, exists := options.GetOK("timezone"); exists {
 		f.config.timezone = s.(string)
+
+		_, err := time.LoadLocation(f.config.timezone)
+		if err != nil {
+			return errors.New("Invalid timezone")
+		}
 	} else {
 		f.config.timezone = "UTC"
 	}
@@ -65,8 +69,8 @@ func (f *DateFilter) setConfig(options *utils.InterfaceMap) error {
 	return nil
 }
 
-// Run processes a batch.
-func (f *DateFilter) Run(ctx context.Context, batch []*event.Event) []*event.Event {
+// Filter processes a batch.
+func (f *DateFilter) Filter(ctx context.Context, batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
 	for _, event := range batch {
 		field := event.Get(f.config.field)
 		if field == nil {
@@ -78,20 +82,24 @@ func (f *DateFilter) Run(ctx context.Context, batch []*event.Event) []*event.Eve
 			continue
 		}
 
-		loc, err := time.LoadLocation(f.config.timezone)
-		if err != nil {
-			fmt.Printf("Invalid timezone %s", f.config.timezone)
-			continue
-		}
+		loc, _ := time.LoadLocation(f.config.timezone)
 
+		matched := false
 		for _, p := range f.config.patterns {
 			newTime, err := time.ParseInLocation(p, fieldStr, loc)
 			if err != nil {
 				continue
 			}
 			event.SetTimestamp(newTime)
+			matched = true
 			break
 		}
+
+		if !matched {
+			continue
+		}
+
+		matchedFunc(event)
 	}
 	return batch
 }

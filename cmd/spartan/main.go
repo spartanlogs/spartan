@@ -48,7 +48,11 @@ func main() {
 
 	parsed, err := parser.ParseFile(filtersPath)
 	if err != nil {
-		fmt.Println(err)
+		if os.IsNotExist(err) {
+			fmt.Printf("Filter path %s doesn't exist", filtersPath)
+		} else {
+			fmt.Println(err)
+		}
 		os.Exit(1)
 	}
 
@@ -70,8 +74,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	filterCont := filters.NewFilterController(filterPipeline, 25)
-	outputCont := outputs.NewOutputController(outputPipeline, 25)
+	filterCont := filters.NewFilterController(filterPipeline, 10)
+	outputCont := outputs.NewOutputController(outputPipeline, 10)
 
 	// Communication channels
 	inputChan := make(chan *event.Event)

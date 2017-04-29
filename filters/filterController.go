@@ -14,7 +14,7 @@ import (
 // and start a chain of Filters to process the batch. Events are then sent to
 // outputs.
 type FilterController struct {
-	start     Filter
+	start     FilterWrapper
 	batchSize int
 	t         tomb.Tomb
 	in        <-chan *event.Event
@@ -23,7 +23,7 @@ type FilterController struct {
 
 // NewFilterController creates a new controller using start as the root Filter
 // and batchSize as the number of events to queue before processing.
-func NewFilterController(start Filter, batchSize int) *FilterController {
+func NewFilterController(start FilterWrapper, batchSize int) *FilterController {
 	return &FilterController{
 		start:     start,
 		batchSize: batchSize,
