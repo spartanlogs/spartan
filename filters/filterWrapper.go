@@ -12,7 +12,7 @@ type filterWrapper struct {
 	next FilterWrapper
 }
 
-func newFilterWrapper(cmd Filter, options *utils.InterfaceMap) (*filterWrapper, error) {
+func newFilterWrapper(cmd Filter, options utils.InterfaceMap) (*filterWrapper, error) {
 	options = checkOptionsMap(options)
 	fw := &filterWrapper{
 		cmd: cmd,
@@ -23,7 +23,7 @@ func newFilterWrapper(cmd Filter, options *utils.InterfaceMap) (*filterWrapper, 
 	return fw, nil
 }
 
-func (f *filterWrapper) setConfig(options *utils.InterfaceMap) error {
+func (f *filterWrapper) setConfig(options utils.InterfaceMap) error {
 	return nil
 }
 

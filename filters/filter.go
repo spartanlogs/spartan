@@ -27,7 +27,7 @@ type FilterWrapper interface {
 }
 
 // InitFunc is registered with this package as an initializer for a Filter
-type InitFunc func(*utils.InterfaceMap) (Filter, error)
+type InitFunc func(utils.InterfaceMap) (Filter, error)
 
 // MatchFunc is ran by a filter for a matching event
 type MatchFunc func(*event.Event)
@@ -39,7 +39,8 @@ var (
 	ErrFilterNotRegistered = errors.New("Filter doesn't exist")
 )
 
-func register(name string, init InitFunc) {
+// Register allows filters to register an init function with their name
+func Register(name string, init InitFunc) {
 	if registeredFilterInits == nil {
 		registeredFilterInits = make(map[string]InitFunc)
 	}
@@ -50,7 +51,7 @@ func register(name string, init InitFunc) {
 }
 
 // New creates an instance of Filter name with options. Options are dependent on the Filter.
-func New(name string, options *utils.InterfaceMap) (Filter, error) {
+func New(name string, options utils.InterfaceMap) (Filter, error) {
 	init, exists := registeredFilterInits[name]
 	if !exists {
 		return nil, ErrFilterNotRegistered
@@ -106,7 +107,7 @@ func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 }
 
 // checkOptionsMap ensures an option map is never nil.
-func checkOptionsMap(o *utils.InterfaceMap) *utils.InterfaceMap {
+func checkOptionsMap(o utils.InterfaceMap) utils.InterfaceMap {
 	if o == nil {
 		o = utils.NewInterfaceMap()
 	}

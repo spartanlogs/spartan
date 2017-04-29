@@ -18,7 +18,7 @@ type Input interface {
 	Close() error
 }
 
-type initFunc func(*utils.InterfaceMap) (Input, error)
+type initFunc func(utils.InterfaceMap) (Input, error)
 
 var (
 	registeredInputInits map[string]initFunc
@@ -27,7 +27,8 @@ var (
 	ErrInputNotRegistered = errors.New("Input doesn't exist")
 )
 
-func register(name string, init initFunc) {
+// Register allows an input to register an init function with their name
+func Register(name string, init initFunc) {
 	if registeredInputInits == nil {
 		registeredInputInits = make(map[string]initFunc)
 	}
@@ -38,7 +39,7 @@ func register(name string, init initFunc) {
 }
 
 // New creates an instance of Input name with options. Options are dependent on the Input.
-func New(name string, options *utils.InterfaceMap) (Input, error) {
+func New(name string, options utils.InterfaceMap) (Input, error) {
 	init, exists := registeredInputInits[name]
 	if !exists {
 		return nil, ErrInputNotRegistered

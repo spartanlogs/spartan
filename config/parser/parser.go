@@ -32,14 +32,14 @@ type ParsedFile struct {
 // InputDef defines the module name and options map of an input.
 type InputDef struct {
 	Module  string
-	Options *utils.InterfaceMap
+	Options utils.InterfaceMap
 }
 
 // PipelineDef defines a pipeline object (Filter/Output). It contains
 // the module name, options map, and connections to the rest of the pipeline.
 type PipelineDef struct {
 	Module  string
-	Options *utils.InterfaceMap
+	Options utils.InterfaceMap
 
 	// Connections is a slice of index numbers corresponding to the index of
 	// a pipeline definition in the parent ParsedFile struct.
@@ -263,7 +263,7 @@ func (p *parser) parsePipelineDefs() ([]*PipelineDef, error) {
 	return modules, nil
 }
 
-func (p *parser) parseMap() (*utils.InterfaceMap, error) {
+func (p *parser) parseMap() (utils.InterfaceMap, error) {
 	if p.curTok.Type != token.LBRACE {
 		return nil, p.tokenError(token.LBRACE)
 	}

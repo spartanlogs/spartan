@@ -17,7 +17,7 @@ type Output interface {
 	Run(batch []*event.Event)
 }
 
-type initFunc func(*utils.InterfaceMap) (Output, error)
+type initFunc func(utils.InterfaceMap) (Output, error)
 
 var (
 	registeredOutputInits map[string]initFunc
@@ -26,7 +26,8 @@ var (
 	ErrOutputNotRegistered = errors.New("Output doesn't exist")
 )
 
-func register(name string, init initFunc) {
+// Register allows an output to register an init function with their name
+func Register(name string, init initFunc) {
 	if registeredOutputInits == nil {
 		registeredOutputInits = make(map[string]initFunc)
 	}
@@ -37,7 +38,7 @@ func register(name string, init initFunc) {
 }
 
 // New creates an instance of Output name with options. Options are dependent on the Output.
-func New(name string, options *utils.InterfaceMap) (Output, error) {
+func New(name string, options utils.InterfaceMap) (Output, error) {
 	init, exists := registeredOutputInits[name]
 	if !exists {
 		return nil, ErrOutputNotRegistered
@@ -80,7 +81,7 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 }
 
 // checkOptionsMap ensures an option map is never nil.
-func checkOptionsMap(o *utils.InterfaceMap) *utils.InterfaceMap {
+func checkOptionsMap(o utils.InterfaceMap) utils.InterfaceMap {
 	if o == nil {
 		o = utils.NewInterfaceMap()
 	}

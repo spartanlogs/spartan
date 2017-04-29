@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	register("date", newDateFilter)
+	Register("date", newDateFilter)
 }
 
 type dateConfig struct {
@@ -26,7 +26,7 @@ type DateFilter struct {
 	config *dateConfig
 }
 
-func newDateFilter(options *utils.InterfaceMap) (Filter, error) {
+func newDateFilter(options utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &DateFilter{config: &dateConfig{}}
 	if err := f.setConfig(options); err != nil {
@@ -35,7 +35,7 @@ func newDateFilter(options *utils.InterfaceMap) (Filter, error) {
 	return f, nil
 }
 
-func (f *DateFilter) setConfig(options *utils.InterfaceMap) error {
+func (f *DateFilter) setConfig(options utils.InterfaceMap) error {
 	if s, exists := options.GetOK("field"); exists {
 		f.config.field = s.(string)
 	} else {

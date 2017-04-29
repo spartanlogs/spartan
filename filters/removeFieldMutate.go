@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	register("remove_field", newRemoveFieldFilter)
+	Register("remove_field", newRemoveFieldFilter)
 }
 
 type removeFieldConfig struct {
@@ -23,7 +23,7 @@ type RemoveFieldFilter struct {
 	config *removeFieldConfig
 }
 
-func newRemoveFieldFilter(options *utils.InterfaceMap) (Filter, error) {
+func newRemoveFieldFilter(options utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	f := &RemoveFieldFilter{config: &removeFieldConfig{}}
 	if err := f.setConfig(options); err != nil {
@@ -32,7 +32,7 @@ func newRemoveFieldFilter(options *utils.InterfaceMap) (Filter, error) {
 	return f, nil
 }
 
-func (f *RemoveFieldFilter) setConfig(options *utils.InterfaceMap) error {
+func (f *RemoveFieldFilter) setConfig(options utils.InterfaceMap) error {
 	if s, exists := options.GetOK("fields"); exists {
 		switch s := s.(type) {
 		case string:

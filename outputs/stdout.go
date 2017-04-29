@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	register("stdout", newStdOutOutput)
+	Register("stdout", newStdOutOutput)
 }
 
 type stdOutConfig struct {
@@ -22,7 +22,7 @@ type StdOutOutput struct {
 	next   Output
 }
 
-func newStdOutOutput(options *utils.InterfaceMap) (Output, error) {
+func newStdOutOutput(options utils.InterfaceMap) (Output, error) {
 	options = checkOptionsMap(options)
 	o := &StdOutOutput{config: &stdOutConfig{}}
 	if err := o.setConfig(options); err != nil {
@@ -31,7 +31,7 @@ func newStdOutOutput(options *utils.InterfaceMap) (Output, error) {
 	return o, nil
 }
 
-func (o *StdOutOutput) setConfig(options *utils.InterfaceMap) error {
+func (o *StdOutOutput) setConfig(options utils.InterfaceMap) error {
 	if s, exists := options.GetOK("codec"); exists {
 		c, err := codecs.New(s.(string))
 		if err != nil {

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	register("grok", newGrokFilter)
+	Register("grok", newGrokFilter)
 }
 
 type grokConfig struct {
@@ -26,7 +26,7 @@ type GrokFilter struct {
 	config *grokConfig
 }
 
-func newGrokFilter(options *utils.InterfaceMap) (Filter, error) {
+func newGrokFilter(options utils.InterfaceMap) (Filter, error) {
 	options = checkOptionsMap(options)
 	g := &GrokFilter{config: &grokConfig{}}
 	if err := g.setConfig(options); err != nil {
@@ -35,7 +35,7 @@ func newGrokFilter(options *utils.InterfaceMap) (Filter, error) {
 	return g, nil
 }
 
-func (f *GrokFilter) setConfig(options *utils.InterfaceMap) error {
+func (f *GrokFilter) setConfig(options utils.InterfaceMap) error {
 	if s, exists := options.GetOK("field"); exists {
 		f.config.field = s.(string)
 	} else {
