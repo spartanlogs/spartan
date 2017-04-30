@@ -1,7 +1,6 @@
 package filters
 
 import (
-	"context"
 	"errors"
 
 	"github.com/lfkeitel/spartan/config/parser"
@@ -14,7 +13,7 @@ import (
 // is done processing, it should call the next Filter in line with its processed event batch.
 type Filter interface {
 	// Run processes a batch.
-	Filter(ctx context.Context, batch []*event.Event, matched MatchFunc) []*event.Event
+	Filter(batch []*event.Event, matched MatchFunc) []*event.Event
 }
 
 // A FilterWrapper wraps the execution of a filter to enforce deadlines and other external functions.
@@ -23,7 +22,7 @@ type FilterWrapper interface {
 	SetNext(next FilterWrapper)
 
 	// Run processes a batch.
-	Run(ctx context.Context, batch []*event.Event) []*event.Event
+	Run(batch []*event.Event) []*event.Event
 }
 
 // InitFunc is registered with this package as an initializer for a Filter
@@ -84,14 +83,12 @@ func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 	// Wrap filters
 	for i, filter := range filters {
 		switch len(defs[i].Connections) {
-		case 0: // End of a pipeline
-			fw, _ := newFilterWrapper(nil, nil)
-			wrappers[i] = fw
-		case 1: // Normal next filter
+		case 0, 1: // Normal next filter
 			fw, err := newFilterWrapper(filter, defs[i].Options)
 			if err != nil {
 				return nil, err
 			}
+			fw.id = defs[i].Module
 			wrappers[i] = fw
 		case 3: // If statement
 			return nil, utils.ErrNotImplemented
