@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -40,9 +39,11 @@ func (m InterfaceMap) Get(key string) interface{} {
 
 // GetOK gets the value of key and if it exists.
 func (m InterfaceMap) GetOK(key string) (interface{}, bool) {
-	v, err := walkMap(key, m, mapOperation{getOperator{}, false})
-	exists := (err != ErrKeyNotFound)
-	return v, exists
+	if exists := m.HasKey(key); exists {
+		v, _ := walkMap(key, m, mapOperation{getOperator{}, false})
+		return v, true
+	}
+	return nil, false
 }
 
 // HasKey returns if the key exists in the map.
@@ -75,16 +76,6 @@ func (m InterfaceMap) Copy() InterfaceMap {
 		}
 	}
 	return n
-}
-
-// MarshalJSON marshals the underlying map instead of the struct.
-func (m InterfaceMap) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m)
-}
-
-// UnmarshalJSON unmarshals the underlying map instead of the struct.
-func (m InterfaceMap) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, m)
 }
 
 func toInterfaceMap(data interface{}) (InterfaceMap, error) {
