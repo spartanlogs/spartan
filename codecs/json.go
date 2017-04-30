@@ -2,7 +2,6 @@ package codecs
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/lfkeitel/spartan/event"
 )
@@ -20,8 +19,7 @@ func newJSONCodec() (Codec, error) {
 
 // Encode Event as JSON object.
 func (c *JSONCodec) Encode(e *event.Event) []byte {
-	e.SetTimestamp(time.Unix(e.GetTimestamp().Unix(), 0))
-	data := e.Squash()
+	data := e.Data()
 	j, _ := json.Marshal(data)
 	return j
 }
