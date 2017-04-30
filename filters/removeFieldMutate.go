@@ -1,9 +1,7 @@
 package filters
 
 import (
-	"context"
-	"errors"
-
+	"github.com/lfkeitel/spartan/config"
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 )
@@ -14,7 +12,15 @@ func init() {
 
 type removeFieldConfig struct {
 	fields []string
-	action string
+}
+
+var removeFieldConfigSchema = []config.Setting{
+	{
+		Name:     "fields",
+		Type:     config.Array,
+		Required: true,
+		ElemType: &config.Setting{Type: config.String},
+	},
 }
 
 // A RemoveFieldFilter is used to perform several different actions on an Event.
@@ -33,27 +39,20 @@ func newRemoveFieldFilter(options utils.InterfaceMap) (Filter, error) {
 }
 
 func (f *RemoveFieldFilter) setConfig(options utils.InterfaceMap) error {
-	if s, exists := options.GetOK("fields"); exists {
-		switch s := s.(type) {
-		case string:
-			f.config.fields = []string{s}
-		case []string:
-			f.config.fields = s
-		default:
-			return errors.New("Fields must be a string or array of strings")
-		}
-	} else {
-		return errors.New("Fields option required")
+	if err := config.VerifySettings(options, removeFieldConfigSchema); err != nil {
+		return err
 	}
+
+	f.config.fields = options.Get("fields").([]string)
 
 	return nil
 }
 
 // Filter processes a batch.
-func (f *RemoveFieldFilter) Filter(ctx context.Context, batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
+func (f *RemoveFieldFilter) Filter(batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
 	for _, event := range batch {
 		for _, field := range f.config.fields {
-			event.RemoveField(field)
+			event.DeleteField(field)
 		}
 	}
 	return batch

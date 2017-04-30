@@ -1,11 +1,10 @@
 package filters
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"regexp"
 
+	"github.com/lfkeitel/spartan/config"
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 )
@@ -18,6 +17,25 @@ type grokConfig struct {
 	field              string
 	regex              []*regexp.Regexp
 	ignoreMissingField bool
+}
+
+var grokConfigSchema = []config.Setting{
+	{
+		Name:    "field",
+		Type:    config.String,
+		Default: "message",
+	},
+	{
+		Name:     "patterns",
+		Type:     config.Array,
+		Required: true,
+		ElemType: &config.Setting{Type: config.String},
+	},
+	{
+		Name:    "ignore_missing",
+		Type:    config.Bool,
+		Default: false,
+	},
 }
 
 // A GrokFilter processes event fields based on give regex patterns.
@@ -36,49 +54,34 @@ func newGrokFilter(options utils.InterfaceMap) (Filter, error) {
 }
 
 func (f *GrokFilter) setConfig(options utils.InterfaceMap) error {
-	if s, exists := options.GetOK("field"); exists {
-		f.config.field = s.(string)
-	} else {
-		f.config.field = "message"
+	if err := config.VerifySettings(options, grokConfigSchema); err != nil {
+		return err
 	}
 
-	if s, exists := options.GetOK("patterns"); exists {
-		var patterns []string
-		switch sTyped := s.(type) {
-		case []string:
-			patterns = sTyped
-		case string:
-			patterns = []string{sTyped}
-		default:
-			return errors.New("regex must be string or array of strings")
-		}
+	f.config.field = options.Get("field").(string)
+	f.config.ignoreMissingField = options.Get("ignore_missing").(bool)
 
-		for _, pattern := range patterns {
-			r, err := regexp.Compile(interpolatePatterns(pattern))
-			if err != nil {
-				return fmt.Errorf("Regex failed to compile: %v", err)
-			}
-			f.config.regex = append(f.config.regex, r)
+	patterns := options.Get("patterns").([]string)
+	f.config.regex = make([]*regexp.Regexp, len(patterns))
+	var err error
+	for i, pattern := range patterns {
+		f.config.regex[i], err = regexp.Compile(interpolatePatterns(pattern))
+		if err != nil {
+			return fmt.Errorf("Regex failed to compile: %v", err)
 		}
-	} else {
-		return errors.New("Regex option required")
-	}
-
-	if s, exists := options.GetOK("ignore_missing"); exists {
-		f.config.ignoreMissingField = s.(bool)
 	}
 
 	return nil
 }
 
 // Filter processes a batch.
-func (f *GrokFilter) Filter(ctx context.Context, batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
+func (f *GrokFilter) Filter(batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
 	for _, event := range batch {
 		if event == nil {
 			continue
 		}
 
-		field := event.Get(f.config.field)
+		field := event.GetField(f.config.field)
 		if field == nil {
 			if !f.config.ignoreMissingField {
 				fmt.Printf("Field %s doesn't exist\n", f.config.field)
@@ -104,10 +107,10 @@ func (f *GrokFilter) Filter(ctx context.Context, batch []*event.Event, matchedFu
 			matched = true
 
 			for i, group := range regex.SubexpNames() {
-				if i == 0 {
+				if i == 0 || group == "" {
 					continue
 				}
-				event.Set(group, matches[0][i])
+				event.SetField(group, matches[0][i])
 			}
 			break regexLoop
 		}

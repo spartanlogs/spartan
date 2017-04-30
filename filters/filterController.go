@@ -1,7 +1,6 @@
 package filters
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -89,7 +88,7 @@ func (f *FilterController) run() error {
 
 		fmt.Printf("Processing batch of %d\n", len(batch))
 		start := time.Now()
-		batch = f.start.Run(context.TODO(), batch)
+		batch = f.start.Run(batch)
 		fmt.Println(time.Since(start))
 
 		for _, event := range batch {

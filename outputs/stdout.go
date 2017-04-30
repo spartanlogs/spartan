@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/lfkeitel/spartan/codecs"
+	"github.com/lfkeitel/spartan/config"
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 )
@@ -14,6 +15,14 @@ func init() {
 
 type stdOutConfig struct {
 	codec codecs.Codec
+}
+
+var stdOutConfigSchema = []config.Setting{
+	{
+		Name:    "codec",
+		Type:    config.String,
+		Default: "json",
+	},
 }
 
 // StdOutOutput prints events to StdOut.
@@ -32,16 +41,13 @@ func newStdOutOutput(options utils.InterfaceMap) (Output, error) {
 }
 
 func (o *StdOutOutput) setConfig(options utils.InterfaceMap) error {
-	if s, exists := options.GetOK("codec"); exists {
-		c, err := codecs.New(s.(string))
-		if err != nil {
-			return err
-		}
-		o.config.codec = c
-	} else {
-		c, _ := codecs.New("json")
-		o.config.codec = c
+	if err := config.VerifySettings(options, stdOutConfigSchema); err != nil {
+		return err
 	}
+
+	codec := options.Get("codec").(string)
+	c, _ := codecs.New(codec)
+	o.config.codec = c
 
 	return nil
 }

@@ -1,10 +1,9 @@
 package filters
 
 import (
-	"context"
-	"errors"
 	"time"
 
+	"github.com/lfkeitel/spartan/config"
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 )
@@ -17,6 +16,25 @@ type dateConfig struct {
 	field    string
 	patterns []string
 	timezone string
+}
+
+var dateConfigSchema = []config.Setting{
+	{
+		Name:    "field",
+		Type:    config.String,
+		Default: "message",
+	},
+	{
+		Name:    "timezone",
+		Type:    config.String,
+		Default: "UTC",
+	},
+	{
+		Name:     "patterns",
+		Type:     config.Array,
+		Required: true,
+		ElemType: &config.Setting{Type: config.String},
+	},
 }
 
 // The DateFilter is used to set the canonical @timestamp field of an Event.
@@ -36,43 +54,21 @@ func newDateFilter(options utils.InterfaceMap) (Filter, error) {
 }
 
 func (f *DateFilter) setConfig(options utils.InterfaceMap) error {
-	if s, exists := options.GetOK("field"); exists {
-		f.config.field = s.(string)
-	} else {
-		return errors.New("Field option required")
+	if err := config.VerifySettings(options, dateConfigSchema); err != nil {
+		return err
 	}
 
-	if s, exists := options.GetOK("patterns"); exists {
-		switch s := s.(type) {
-		case string:
-			f.config.patterns = []string{s}
-		case []string:
-			f.config.patterns = s
-		default:
-			return errors.New("Patterns must be a string or array of strings")
-		}
-	} else {
-		return errors.New("Patterns option required")
-	}
-
-	if s, exists := options.GetOK("timezone"); exists {
-		f.config.timezone = s.(string)
-
-		_, err := time.LoadLocation(f.config.timezone)
-		if err != nil {
-			return errors.New("Invalid timezone")
-		}
-	} else {
-		f.config.timezone = "UTC"
-	}
+	f.config.field = options.Get("field").(string)
+	f.config.timezone = options.Get("timezone").(string)
+	f.config.patterns = options.Get("patterns").([]string)
 
 	return nil
 }
 
 // Filter processes a batch.
-func (f *DateFilter) Filter(ctx context.Context, batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
+func (f *DateFilter) Filter(batch []*event.Event, matchedFunc MatchFunc) []*event.Event {
 	for _, event := range batch {
-		field := event.Get(f.config.field)
+		field := event.GetField(f.config.field)
 		if field == nil {
 			continue
 		}

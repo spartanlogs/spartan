@@ -1,11 +1,11 @@
 package inputs
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/hpcloud/tail"
+	"github.com/lfkeitel/spartan/config"
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 	"gopkg.in/tomb.v2"
@@ -17,6 +17,14 @@ func init() {
 
 type fileConfig struct {
 	path string
+}
+
+var fileConfigSchema = []config.Setting{
+	{
+		Name:     "path",
+		Type:     config.String,
+		Required: true,
+	},
 }
 
 // A FileInput will read a file and optionally tail it. Each line is considered
@@ -35,11 +43,11 @@ func newFileInput(options utils.InterfaceMap) (Input, error) {
 }
 
 func (i *FileInput) setConfig(options utils.InterfaceMap) error {
-	if s, exists := options.GetOK("path"); exists {
-		i.config.path = s.(string)
-	} else {
-		return errors.New("Path option required")
+	if err := config.VerifySettings(options, fileConfigSchema); err != nil {
+		return err
 	}
+
+	i.config.path = options.Get("path").(string)
 
 	return nil
 }

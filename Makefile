@@ -37,6 +37,9 @@ generate:
 
 # Testing
 test:
+	@go test $$(go list ./... | grep -v /vendor/)
+
+test_race:
 	@go test -race $$(go list ./... | grep -v /vendor/)
 
 coverage:

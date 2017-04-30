@@ -1,13 +1,14 @@
 package filters
 
 import (
-	"context"
+	"fmt"
 
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 )
 
 type filterWrapper struct {
+	id   string
 	cmd  Filter
 	next FilterWrapper
 }
@@ -27,20 +28,25 @@ func (f *filterWrapper) setConfig(options utils.InterfaceMap) error {
 	return nil
 }
 
+func (f *filterWrapper) GetID() string {
+	return f.id
+}
+
 // SetNext sets the next Filter in line.
 func (f *filterWrapper) SetNext(next FilterWrapper) {
 	f.next = next
 }
 
 // Run processes a batch.
-func (f *filterWrapper) Run(ctx context.Context, batch []*event.Event) []*event.Event {
-	// It's the end of the pipeline as we know it.
-	if f.cmd == nil {
+func (f *filterWrapper) Run(batch []*event.Event) []*event.Event {
+	fmt.Printf("Wrapper %s running...\n", f.id)
+
+	batch = f.cmd.Filter(batch, f.matchFunc)
+
+	if f.next == nil {
 		return batch
 	}
-
-	// For now just pass along the data
-	return f.next.Run(ctx, f.cmd.Filter(ctx, batch, f.matchFunc))
+	return f.next.Run(batch)
 }
 
 func (f *filterWrapper) matchFunc(e *event.Event) {}
