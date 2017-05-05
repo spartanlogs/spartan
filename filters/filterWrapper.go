@@ -41,6 +41,9 @@ func (f *filterWrapper) SetNext(next FilterWrapper) {
 func (f *filterWrapper) Run(batch []*event.Event) []*event.Event {
 	fmt.Printf("Wrapper %s running...\n", f.id)
 
+	if f.cmd == nil {
+		return batch
+	}
 	batch = f.cmd.Filter(batch, f.matchFunc)
 
 	if f.next == nil {
