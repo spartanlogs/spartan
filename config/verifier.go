@@ -62,7 +62,11 @@ func VerifySettings(data utils.InterfaceMap, settings []Setting) error {
 
 		// If there's no value, no need to continue verification
 		if v == nil {
-			data.Set(setting.Name, setting.Default)
+			if setting.Default != nil {
+				data.Set(setting.Name, setting.Default)
+			} else {
+				setTypeDefault(data, setting)
+			}
 			continue
 		}
 
@@ -118,10 +122,38 @@ func verifyArray(data interface{}, elemType *Setting) error {
 			return errors.New("Expected array of int")
 		}
 	case Array:
-		return verifyArray(data, elemType)
+		return verifyArray(data, elemType.ElemType)
 	default:
 		return errors.New("invalid array element type")
 	}
 
 	return nil
+}
+
+func setTypeDefault(data utils.InterfaceMap, setting Setting) {
+	switch setting.Type {
+	case String:
+		data.Set(setting.Name, "")
+	case Int:
+		data.Set(setting.Name, 0)
+	case Float:
+		data.Set(setting.Name, 0.0)
+	case Bool:
+		data.Set(setting.Name, false)
+	case Array:
+		setArrayTypeDefault(data, setting.Name, setting.ElemType)
+	case Map:
+		data.Set(setting.Name, utils.NewInterfaceMap())
+	}
+}
+
+func setArrayTypeDefault(data utils.InterfaceMap, name string, elemType *Setting) {
+	switch elemType.Type {
+	case String:
+		data.Set(name, []string{})
+	case Int:
+		data.Set(name, []int{})
+	case Array:
+		setArrayTypeDefault(data, elemType.Name, elemType.ElemType)
+	}
 }

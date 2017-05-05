@@ -32,9 +32,8 @@ var grokConfigSchema = []config.Setting{
 		ElemType: &config.Setting{Type: config.String},
 	},
 	{
-		Name:    "ignore_missing",
-		Type:    config.Bool,
-		Default: false,
+		Name: "ignore_missing",
+		Type: config.Bool,
 	},
 }
 
