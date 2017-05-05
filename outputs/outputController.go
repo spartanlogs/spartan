@@ -70,7 +70,7 @@ func (o *OutputController) run() error {
 			}
 		}
 
-		fmt.Println("Processing batch")
+		//fmt.Println("Processing batch")
 		o.start.Run(batch)
 
 		if stopping {

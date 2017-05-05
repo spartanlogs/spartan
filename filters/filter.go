@@ -16,6 +16,12 @@ type Filter interface {
 	Filter(batch []*event.Event, matched MatchFunc) []*event.Event
 }
 
+// A Flushable is a filter that wishes to flush data periodically. Flush is called ever 5 seconds.
+// Filter can track their last flush time and flush less often by simply returning early.
+type Flushable interface {
+	Flush() []*event.Event
+}
+
 // A FilterWrapper wraps the execution of a filter to enforce deadlines and other external functions.
 type FilterWrapper interface {
 	// SetNext sets the next Filter in line.
@@ -61,12 +67,14 @@ func New(name string, options utils.InterfaceMap) (Filter, error) {
 // GeneratePipeline creates an filter pipeline. The returned Filter is the starting
 // point in the pipeline. All other filters have been chained together in their
 // defined order. An error will be returned if a filter doesn't exist.
-func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
+func GeneratePipeline(defs []*parser.PipelineDef, batchsize int) (*FilterController, error) {
+	controller := NewFilterController(nil, batchsize)
 	filters := make([]Filter, len(defs))
 
 	if len(defs) == 0 {
 		fw, _ := newFilterWrapper(nil, nil)
-		return fw, nil
+		controller.setStart(fw)
+		return controller, nil
 	}
 
 	// Generate filters
@@ -76,6 +84,10 @@ func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 			return nil, err
 		}
 		filters[i] = filter
+
+		if f, flushable := filter.(Flushable); flushable {
+			controller.addFlusher(f)
+		}
 	}
 
 	wrappers := make([]FilterWrapper, len(defs))
@@ -100,7 +112,8 @@ func GeneratePipeline(defs []*parser.PipelineDef) (FilterWrapper, error) {
 		wrapper.SetNext(wrappers[i+1])
 	}
 
-	return wrappers[0], nil
+	controller.setStart(wrappers[0])
+	return controller, nil
 }
 
 // checkOptionsMap ensures an option map is never nil.

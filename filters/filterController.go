@@ -18,6 +18,7 @@ type FilterController struct {
 	t         tomb.Tomb
 	in        <-chan *event.Event
 	out       chan<- *event.Event
+	flushers  []Flushable
 }
 
 // NewFilterController creates a new controller using start as the root Filter
@@ -26,7 +27,16 @@ func NewFilterController(start FilterWrapper, batchSize int) *FilterController {
 	return &FilterController{
 		start:     start,
 		batchSize: batchSize,
+		flushers:  make([]Flushable, 0),
 	}
+}
+
+func (f *FilterController) addFlusher(flusher Flushable) {
+	f.flushers = append(f.flushers, flusher)
+}
+
+func (f *FilterController) setStart(fw FilterWrapper) {
+	f.start = fw
 }
 
 // Start creates a go routine where the controller will start to wait for
@@ -36,6 +46,9 @@ func (f *FilterController) Start(in, out chan *event.Event) error {
 	f.in = in
 	f.out = out
 	f.t.Go(f.run)
+	if len(f.flushers) > 0 {
+		f.t.Go(f.flush)
+	}
 	return nil
 }
 
@@ -45,6 +58,24 @@ func (f *FilterController) Start(in, out chan *event.Event) error {
 func (f *FilterController) Close() error {
 	f.t.Kill(nil)
 	return f.t.Wait()
+}
+
+func (f *FilterController) flush() error {
+	timerDur := 5 * time.Second
+	timer := time.NewTimer(timerDur) // Use timer incase filters take too long to flush
+	for {
+		select {
+		case <-f.t.Dying():
+			return nil
+		case <-timer.C:
+			for _, filter := range f.flushers {
+				for _, e := range filter.Flush() {
+					f.out <- e
+				}
+			}
+			timer.Reset(timerDur)
+		}
+	}
 }
 
 func (f *FilterController) run() error {
@@ -86,10 +117,10 @@ func (f *FilterController) run() error {
 			batch = batch[:currentBatch]
 		}
 
-		fmt.Printf("Processing batch of %d\n", len(batch))
-		start := time.Now()
+		//fmt.Printf("Processing batch of %d\n", len(batch))
+		//start := time.Now()
 		batch = f.start.Run(batch)
-		fmt.Println(time.Since(start))
+		//fmt.Println(time.Since(start))
 
 		for _, event := range batch {
 			f.out <- event

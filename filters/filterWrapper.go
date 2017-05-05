@@ -1,8 +1,6 @@
 package filters
 
 import (
-	"fmt"
-
 	"github.com/lfkeitel/spartan/event"
 	"github.com/lfkeitel/spartan/utils"
 )
@@ -39,7 +37,7 @@ func (f *filterWrapper) SetNext(next FilterWrapper) {
 
 // Run processes a batch.
 func (f *filterWrapper) Run(batch []*event.Event) []*event.Event {
-	fmt.Printf("Wrapper %s running...\n", f.id)
+	//fmt.Printf("Wrapper %s running...\n", f.id)
 
 	if f.cmd == nil {
 		return batch

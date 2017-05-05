@@ -62,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	filterPipeline, err := filters.GeneratePipeline(parsed.Filters)
+	filterCont, err := filters.GeneratePipeline(parsed.Filters, 100)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -74,8 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	filterCont := filters.NewFilterController(filterPipeline, 10)
-	outputCont := outputs.NewOutputController(outputPipeline, 10)
+	outputCont := outputs.NewOutputController(outputPipeline, 100)
 
 	// Communication channels
 	inputChan := make(chan *event.Event)
