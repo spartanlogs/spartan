@@ -23,6 +23,10 @@ func NewMeter(avgType AverageType) *Meter {
 		m.rates[0] = newSMA(1*time.Minute, 5*time.Second)
 		m.rates[1] = newSMA(5*time.Minute, 5*time.Second)
 		m.rates[2] = newSMA(15*time.Minute, 5*time.Second)
+	case EWMA:
+		m.rates[0] = newEWMA(m1Alpha, 5*time.Second)
+		m.rates[1] = newEWMA(m5Alpha, 5*time.Second)
+		m.rates[2] = newEWMA(m15Alpha, 5*time.Second)
 	}
 
 	go m.tick(5 * time.Second)

@@ -37,10 +37,11 @@ func (a *simpleMovingAverage) Clear() {
 
 func (a *simpleMovingAverage) Tick() {
 	a.Lock()
-	a.index = a.index + 1%cap(a.values)
-	if cap(a.values)-1 < a.index {
+	a.index = (a.index + 1) % cap(a.values)
+	if len(a.values) < cap(a.values) {
 		a.values = append(a.values, 0)
 	}
+	a.values[a.index] = 0
 	a.Unlock()
 }
 
