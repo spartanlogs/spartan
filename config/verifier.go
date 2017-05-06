@@ -157,3 +157,11 @@ func setArrayTypeDefault(data utils.InterfaceMap, name string, elemType *Setting
 		setArrayTypeDefault(data, elemType.Name, elemType.ElemType)
 	}
 }
+
+// CheckOptionsMap ensures an option map is never nil.
+func CheckOptionsMap(o utils.InterfaceMap) utils.InterfaceMap {
+	if o == nil {
+		o = utils.NewInterfaceMap()
+	}
+	return o
+}

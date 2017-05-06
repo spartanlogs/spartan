@@ -33,6 +33,48 @@
 			"revisionTime": "2017-02-07T02:33:46Z"
 		},
 		{
+			"checksumSHA1": "XU3O7g+FVbphr2nDHakoKzgmYFI=",
+			"path": "github.com/spartanlogs/spartan-date-filter",
+			"revision": "76bf110196bdd5b11b770acc6cacb6092bfbe550",
+			"revisionTime": "2017-05-06T14:51:47Z"
+		},
+		{
+			"checksumSHA1": "YRrTQzfdcoJoDCU3GTNnt+CMSZU=",
+			"path": "github.com/spartanlogs/spartan-file-input",
+			"revision": "2e683051d597a9cc8cef975e9dfbc5b31b307915",
+			"revisionTime": "2017-05-06T14:51:47Z"
+		},
+		{
+			"checksumSHA1": "LjYek48aoZqmEHyEl2sFm3u0qn8=",
+			"path": "github.com/spartanlogs/spartan-generator-input",
+			"revision": "4dc61809bc673a028c53fff69e161f26d845d76c",
+			"revisionTime": "2017-05-06T14:51:47Z"
+		},
+		{
+			"checksumSHA1": "2kv1FIuemq0eVdbyOMckWcxzaS8=",
+			"path": "github.com/spartanlogs/spartan-grok-filter",
+			"revision": "e231525b5a1fb7e500ccd8fe011776a883637a58",
+			"revisionTime": "2017-05-06T14:51:47Z"
+		},
+		{
+			"checksumSHA1": "dbmQoQlkXpZ/N1hdu4djADsdz7w=",
+			"path": "github.com/spartanlogs/spartan-metrics-filter",
+			"revision": "994bdfe68abc4c1d77c4b88197c9ed55079b0347",
+			"revisionTime": "2017-05-06T14:51:48Z"
+		},
+		{
+			"checksumSHA1": "E/UOsP/oQ0iRJT2zX+Zu8l968H8=",
+			"path": "github.com/spartanlogs/spartan-remove-field-filter",
+			"revision": "216a13d2ae3480e4de0170f2e3a1ff1a1d1f812a",
+			"revisionTime": "2017-05-06T14:51:48Z"
+		},
+		{
+			"checksumSHA1": "ofRnOpTLH346E6LD4/t661fVU6Y=",
+			"path": "github.com/spartanlogs/spartan-stdout-output",
+			"revision": "fb21e8554ca32e7686dc43bc70a734ac2d7eee51",
+			"revisionTime": "2017-05-06T14:51:48Z"
+		},
+		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
 			"path": "golang.org/x/net/context",
 			"revision": "0f2be02c5ddfa7c7936000ad519b04c6c795eab3",

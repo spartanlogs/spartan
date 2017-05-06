@@ -79,11 +79,3 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 
 	return outputs[0], nil
 }
-
-// checkOptionsMap ensures an option map is never nil.
-func checkOptionsMap(o utils.InterfaceMap) utils.InterfaceMap {
-	if o == nil {
-		o = utils.NewInterfaceMap()
-	}
-	return o
-}
