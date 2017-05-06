@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 func TestNoSettings(t *testing.T) {

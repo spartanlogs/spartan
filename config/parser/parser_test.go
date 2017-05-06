@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/lfkeitel/spartan/config/lexer"
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/config/lexer"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 func TestEmptyArrayParser(t *testing.T) {

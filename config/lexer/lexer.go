@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/lfkeitel/spartan/config/token"
+	"github.com/spartanlogs/spartan/config/token"
 )
 
 type Lexer struct {

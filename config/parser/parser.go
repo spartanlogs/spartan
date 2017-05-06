@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lfkeitel/spartan/config/lexer"
-	"github.com/lfkeitel/spartan/config/token"
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/config/lexer"
+	"github.com/spartanlogs/spartan/config/token"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // A ParsedFile is the representation of a processed filters

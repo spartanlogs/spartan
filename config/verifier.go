@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // SettingType defines the type of a setting

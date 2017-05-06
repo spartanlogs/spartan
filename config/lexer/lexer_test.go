@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/lfkeitel/spartan/config/token"
+	"github.com/spartanlogs/spartan/config/token"
 )
 
 var testCases = []struct {
