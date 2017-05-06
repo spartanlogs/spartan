@@ -7,11 +7,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/lfkeitel/spartan/config/parser"
-	"github.com/lfkeitel/spartan/event"
-	"github.com/lfkeitel/spartan/filters"
-	"github.com/lfkeitel/spartan/inputs"
-	"github.com/lfkeitel/spartan/outputs"
+	"github.com/spartanlogs/spartan/config/parser"
+	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/filters"
+	"github.com/spartanlogs/spartan/inputs"
+	"github.com/spartanlogs/spartan/outputs"
 )
 
 var (
@@ -62,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	filterCont, err := filters.GeneratePipeline(parsed.Filters, 100)
+	filterCont, err := filters.GeneratePipeline(parsed.Filters, 100, 1)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

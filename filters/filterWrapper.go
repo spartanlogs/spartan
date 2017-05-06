@@ -1,8 +1,8 @@
 package filters
 
 import (
-	"github.com/lfkeitel/spartan/event"
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 type filterWrapper struct {

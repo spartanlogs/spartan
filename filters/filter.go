@@ -3,9 +3,9 @@ package filters
 import (
 	"errors"
 
-	"github.com/lfkeitel/spartan/config/parser"
-	"github.com/lfkeitel/spartan/event"
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/config/parser"
+	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // A Filter is used to manipulate and parse an Event. A Filter receives a batch of events
@@ -67,13 +67,14 @@ func New(name string, options utils.InterfaceMap) (Filter, error) {
 // GeneratePipeline creates an filter pipeline. The returned Filter is the starting
 // point in the pipeline. All other filters have been chained together in their
 // defined order. An error will be returned if a filter doesn't exist.
-func GeneratePipeline(defs []*parser.PipelineDef, batchsize int) (*FilterController, error) {
-	controller := NewFilterController(nil, batchsize)
+func GeneratePipeline(defs []*parser.PipelineDef, batchsize int, pipelineNum int) (*Controller, error) {
+	controller := newController(withBatchSize(batchsize))
 	filters := make([]Filter, len(defs))
 
 	if len(defs) == 0 {
 		fw, _ := newFilterWrapper(nil, nil)
-		controller.setStart(fw)
+		p := NewPipeline(fw)
+		controller.pipelines = append(controller.pipelines, p)
 		return controller, nil
 	}
 
@@ -112,7 +113,12 @@ func GeneratePipeline(defs []*parser.PipelineDef, batchsize int) (*FilterControl
 		wrapper.SetNext(wrappers[i+1])
 	}
 
-	controller.setStart(wrappers[0])
+	// Generate the desired number of pipelines
+	for i := 0; i < pipelineNum; i++ {
+		p := NewPipeline(wrappers[0])
+		controller.pipelines = append(controller.pipelines, p)
+	}
+
 	return controller, nil
 }
 
