@@ -3,7 +3,7 @@ package event
 import (
 	"time"
 
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // Fields names for modules to use if needed
@@ -127,7 +127,11 @@ func (e *Event) SetMessage(s string) {
 
 // GetMessage returns the current message.
 func (e *Event) GetMessage() string {
-	return e.GetField(MessageField).(string)
+	m := e.GetField(MessageField)
+	if m == nil {
+		return ""
+	}
+	return m.(string)
 }
 
 // SetType sets the type of the Event. Once type is set, it can't be changed.
