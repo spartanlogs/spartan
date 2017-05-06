@@ -63,7 +63,8 @@ func (i *stringInterpreter) compile(format string) templateNode {
 			continue
 		}
 
-		if logstashSprintf.MatchString(pattern) {
+		// Don't do a regex match unless we need to
+		if pattern[0] == '[' && logstashSprintf.MatchString(pattern) {
 			pattern = strings.Replace(pattern, "][", ".", -1)
 			pattern = pattern[1 : len(pattern)-1]
 		}
