@@ -3,9 +3,9 @@ package inputs
 import (
 	"errors"
 
-	"github.com/lfkeitel/spartan/config/parser"
-	"github.com/lfkeitel/spartan/event"
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/config/parser"
+	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // An Input generates events to be processed.

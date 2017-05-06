@@ -3,7 +3,7 @@ package outputs
 import (
 	"fmt"
 
-	"github.com/lfkeitel/spartan/event"
+	"github.com/spartanlogs/spartan/event"
 
 	tomb "gopkg.in/tomb.v2"
 )

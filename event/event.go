@@ -1,6 +1,7 @@
 package event
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/spartanlogs/spartan/utils"
@@ -37,6 +38,10 @@ func New(message string) *Event {
 	e.SetMessage(message)
 	e.data.Set(TypeField, "")
 	return e
+}
+
+func (e *Event) String() string {
+	return fmt.Sprintf("%s: %s", e.GetTimestamp().Format(time.RFC3339), e.GetMessage())
 }
 
 // Data returns a copy of the underlying map with the events field data.

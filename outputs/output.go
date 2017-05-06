@@ -2,10 +2,12 @@ package outputs
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/lfkeitel/spartan/config/parser"
-	"github.com/lfkeitel/spartan/event"
-	"github.com/lfkeitel/spartan/utils"
+	"github.com/spartanlogs/spartan/codecs"
+	"github.com/spartanlogs/spartan/config/parser"
+	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // An Output takes a batch of events and displays or transports them out of the system.
@@ -15,6 +17,9 @@ type Output interface {
 
 	// Run processes a batch.
 	Run(batch []*event.Event)
+
+	// SetCodec sets the codec
+	SetCodec(codecs.Codec)
 }
 
 type initFunc func(utils.InterfaceMap) (Output, error)
@@ -62,6 +67,24 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// Create and set the codec for the plugin
+		codecOption := def.Options.Get("codec")
+		codecName := ""
+		if codecOption == nil {
+			codecName = "plain"
+		} else if cn, ok := codecOption.(string); ok {
+			codecName = cn
+		} else {
+			return nil, fmt.Errorf("invalid codec setting in %s plugin", def.Module)
+		}
+
+		codec, err := codecs.New(codecName)
+		if err != nil {
+			return nil, err
+		}
+		output.SetCodec(codec)
+
 		outputs[i] = output
 	}
 

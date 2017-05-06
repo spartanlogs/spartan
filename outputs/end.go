@@ -1,7 +1,10 @@
 package outputs
 
-import "github.com/lfkeitel/spartan/event"
-import "github.com/lfkeitel/spartan/utils"
+import (
+	"github.com/spartanlogs/spartan/codecs"
+	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/utils"
+)
 
 // The End output is a special output that is used for internal purposes
 // to terminate an output chain. It simply returns as a no-op.
@@ -16,3 +19,6 @@ func (*end) Run(in []*event.Event) {}
 
 // SetNext is a no-op since End is meant to terminate an Output chain.
 func (*end) SetNext(n Output) {}
+
+// SetCodec is a no-op since End has no data to encode.
+func (*end) SetCodec(c codecs.Codec) {}
