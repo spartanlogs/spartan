@@ -1,7 +1,6 @@
 package event
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/spartanlogs/spartan/utils"
@@ -13,6 +12,10 @@ const (
 	TimestampField = "@timestamp"
 	TypeField      = "type"
 	TagsField      = "tags"
+)
+
+var (
+	interpreter = newStringInterpreter()
 )
 
 // An Event is the primary data structure passed around the system.
@@ -41,7 +44,14 @@ func New(message string) *Event {
 }
 
 func (e *Event) String() string {
-	return fmt.Sprintf("%s: %s", e.GetTimestamp().Format(time.RFC3339), e.GetMessage())
+	return e.Sprintf("%{+2006-01-02T15:04:05Z07:00}: %{message}")
+}
+
+// Sprintf returns a string with replacements of field data from the event.
+// Placeholders use the format "%{field.key}". Two key formats are accepted:
+// "JSON dot format" eg: "%{field.key}" and Logstash format eg: "%{[field][key]}"
+func (e *Event) Sprintf(format string) string {
+	return interpreter.evaluate(e, format)
 }
 
 // Data returns a copy of the underlying map with the events field data.
