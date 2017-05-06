@@ -72,5 +72,9 @@ func (i *stringInterpreter) compile(format string) templateNode {
 		pos = loc[1]
 	}
 
+	if pos != len(format) {
+		t.add(newStaticNode(format[pos:]))
+	}
+
 	return t
 }

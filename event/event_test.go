@@ -54,6 +54,18 @@ func TestSprintf(t *testing.T) {
 	if s != expected {
 		t.Errorf("Sprintf custom time format. Expected %s, got %s", expected, s)
 	}
+
+	s = e.Sprintf("static text %{@timestamp} %{@source}: %{message}")
+	expected = fmt.Sprintf("static text %s test: Hello, world", now.String())
+	if s != expected {
+		t.Errorf("Sprintf default time format. Expected %s, got %s", expected, s)
+	}
+
+	s = e.Sprintf("%{@timestamp} %{@source}: %{message} static text")
+	expected = fmt.Sprintf("%s test: Hello, world static text", now.String())
+	if s != expected {
+		t.Errorf("Sprintf default time format. Expected %s, got %s", expected, s)
+	}
 }
 
 func TestSprintfNested(t *testing.T) {
