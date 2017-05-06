@@ -2,8 +2,9 @@ package codecs
 
 import (
 	"errors"
+	"io"
 
-	"github.com/lfkeitel/spartan/event"
+	"github.com/spartanlogs/spartan/event"
 )
 
 // A Codec is an object that can encode an Event to a byte slice
@@ -13,8 +14,14 @@ type Codec interface {
 	// depending on the codec itself.
 	Encode(e *event.Event) []byte
 
+	// EncodeWriter reads events from in and writes them to w
+	EncodeWriter(io.Writer, <-chan *event.Event)
+
 	// Decode take a byte slice and attempts to turn it into an Event.
 	Decode(data []byte) (*event.Event, error)
+
+	// DecodeReader reads from r and creates an event sent to out
+	DecodeReader(r io.Reader, out chan<- *event.Event)
 }
 
 type codecInitFunc func() (Codec, error)
