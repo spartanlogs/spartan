@@ -13,4 +13,12 @@ import (
 
 	// Outputs
 	_ "github.com/spartanlogs/spartan-output-stdout"
+
+	// Codecs
+	_ "github.com/spartanlogs/spartan-codec-dots"
+	_ "github.com/spartanlogs/spartan-codec-json"
+	_ "github.com/spartanlogs/spartan-codec-json_lines"
+	_ "github.com/spartanlogs/spartan-codec-json_pretty"
+	_ "github.com/spartanlogs/spartan-codec-line"
+	_ "github.com/spartanlogs/spartan-codec-plain"
 )

@@ -28,6 +28,42 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "LioTR4NSCcQi2+czRmpxeCKrAx0=",
+			"path": "github.com/spartanlogs/spartan-codec-dots",
+			"revision": "08d7fd8306b0ee1c1bca8809c92ff06e274cf46d",
+			"revisionTime": "2017-05-07T01:20:34Z"
+		},
+		{
+			"checksumSHA1": "nBRF5yvhM7XrM4vyNsZzmZuAzu4=",
+			"path": "github.com/spartanlogs/spartan-codec-json",
+			"revision": "8f61e6c8e8a89dd46ff1ec61f646b9a14cec17bd",
+			"revisionTime": "2017-05-07T01:20:37Z"
+		},
+		{
+			"checksumSHA1": "Yi0eUB0RSyyxWHiAnyy0OqSuh3Y=",
+			"path": "github.com/spartanlogs/spartan-codec-json_lines",
+			"revision": "40faeb7da3e89bc74cd8f732a78884daa2f1caf3",
+			"revisionTime": "2017-05-07T01:20:40Z"
+		},
+		{
+			"checksumSHA1": "w7gBHxlBb5OTQ77Cg9E/3rRQkZE=",
+			"path": "github.com/spartanlogs/spartan-codec-json_pretty",
+			"revision": "30143b38fed27ca05323cf64924b25615cd11b69",
+			"revisionTime": "2017-05-07T01:20:44Z"
+		},
+		{
+			"checksumSHA1": "Vvrna7smXMcBIYaktlExi4gXlbI=",
+			"path": "github.com/spartanlogs/spartan-codec-line",
+			"revision": "0384c809b8133853c1931eba7fc496ea30bc2e8c",
+			"revisionTime": "2017-05-07T01:20:47Z"
+		},
+		{
+			"checksumSHA1": "SW68RMInpheSGL5J0VpPjeaY5tw=",
+			"path": "github.com/spartanlogs/spartan-codec-plain",
+			"revision": "04e15135682ad3c286b23d6a08674681ebdb0f51",
+			"revisionTime": "2017-05-07T01:20:50Z"
+		},
+		{
 			"checksumSHA1": "ISTq0Vz6gH3euKPZxkWATBrxOxM=",
 			"path": "github.com/spartanlogs/spartan-filter-date",
 			"revision": "76bf110196bdd5b11b770acc6cacb6092bfbe550",

@@ -4,3 +4,4 @@ private/
 vendor/github.com/spartanlogs/spartan-input-*
 vendor/github.com/spartanlogs/spartan-filter-*
 vendor/github.com/spartanlogs/spartan-output-*
+vendor/github.com/spartanlogs/spartan-codec-*

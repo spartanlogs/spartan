@@ -33,9 +33,9 @@ var (
 	ErrCodecNotRegistered = errors.New("Codec doesn't exist")
 )
 
-// register is an internal function for codecs to register their names
+// Register is an internal function for codecs to register their names
 // and init functions.
-func register(name string, c codecInitFunc) {
+func Register(name string, c codecInitFunc) {
 	if registeredCodecInits == nil {
 		registeredCodecInits = make(map[string]codecInitFunc)
 	}
