@@ -101,6 +101,8 @@ func (l *Lexer) NextToken() token.Token {
 	// Control characters
 	case ',':
 		tok = token.NewSimpleToken(token.COMMA, l.line, l.column)
+	case '|':
+		tok = token.NewSimpleToken(token.PIPE, l.line, l.column)
 
 	// Groupings
 	case '{':

@@ -15,10 +15,11 @@ import (
 )
 
 var (
-	configFile  string
-	filtersPath string
-	verFlag     bool
-	testConfig  bool
+	configFile       string
+	filtersPath      string
+	verFlag          bool
+	testConfig       bool
+	testFilterConfig bool
 
 	version   = ""
 	buildTime = ""
@@ -31,6 +32,7 @@ func init() {
 	flag.StringVar(&filtersPath, "f", "", "Filter path, can be a file or directory")
 	flag.BoolVar(&verFlag, "v", false, "Display version information")
 	flag.BoolVar(&testConfig, "t", false, "Test main configuration")
+	flag.BoolVar(&testFilterConfig, "configtest", false, "Test filter configuration")
 }
 
 func main() {
@@ -54,6 +56,10 @@ func main() {
 			fmt.Println(err)
 		}
 		os.Exit(1)
+	}
+
+	if testFilterConfig {
+		return
 	}
 
 	inputMods, err := inputs.CreateFromDefs(parsed.Inputs)

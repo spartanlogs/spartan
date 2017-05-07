@@ -31,15 +31,17 @@ type ParsedFile struct {
 
 // InputDef defines the module name and options map of an input.
 type InputDef struct {
-	Module  string
-	Options utils.InterfaceMap
+	Module       string
+	Options      utils.InterfaceMap
+	CodecOptions utils.InterfaceMap
 }
 
 // PipelineDef defines a pipeline object (Filter/Output). It contains
 // the module name, options map, and connections to the rest of the pipeline.
 type PipelineDef struct {
-	Module  string
-	Options utils.InterfaceMap
+	Module       string
+	Options      utils.InterfaceMap
+	CodecOptions utils.InterfaceMap
 
 	// Connections is a slice of index numbers corresponding to the index of
 	// a pipeline definition in the parent ParsedFile struct.
@@ -205,14 +207,15 @@ func (p *parser) parseInputs() ([]*InputDef, error) {
 		modName := p.curTok.Literal
 		p.nextToken()
 
-		options, err := p.parseMap()
+		options, codecOptions, err := p.parseMap()
 		if err != nil {
 			return nil, err
 		}
 
 		inputs = append(inputs, &InputDef{
-			Module:  modName,
-			Options: options,
+			Module:       modName,
+			Options:      options,
+			CodecOptions: codecOptions,
 		})
 	}
 
@@ -234,20 +237,22 @@ func (p *parser) parsePipelineDefs() ([]*PipelineDef, error) {
 		}
 
 		if p.curTok.Type != token.IDENT {
+			fmt.Println("Hello")
 			return nil, p.tokenError(token.IDENT)
 		}
 
 		modName := p.curTok.Literal
 		p.nextToken()
 
-		options, err := p.parseMap()
+		options, codecOptions, err := p.parseMap()
 		if err != nil {
 			return nil, err
 		}
 
 		modules = append(modules, &PipelineDef{
-			Module:  modName,
-			Options: options,
+			Module:       modName,
+			Options:      options,
+			CodecOptions: codecOptions,
 		})
 	}
 
@@ -263,14 +268,15 @@ func (p *parser) parsePipelineDefs() ([]*PipelineDef, error) {
 	return modules, nil
 }
 
-func (p *parser) parseMap() (utils.InterfaceMap, error) {
+func (p *parser) parseMap() (utils.InterfaceMap, utils.InterfaceMap, error) {
 	if p.curTok.Type != token.LBRACE {
-		return nil, p.tokenError(token.LBRACE)
+		return nil, nil, p.tokenError(token.LBRACE)
 	}
 
 	p.nextToken()
 
 	m := utils.NewInterfaceMap()
+	var submap utils.InterfaceMap
 mapLoop:
 	for {
 		switch p.curTok.Type {
@@ -279,6 +285,14 @@ mapLoop:
 		case token.COMMA: // Commas are optional
 			p.nextToken()
 			continue mapLoop
+		case token.PIPE:
+			p.nextToken()
+			var err error
+			submap, _, err = p.parseMap()
+			if err != nil {
+				return nil, nil, err
+			}
+			continue mapLoop
 		case token.IDENT:
 			fallthrough
 		case token.STRING:
@@ -286,7 +300,7 @@ mapLoop:
 			p.nextToken()
 
 			if p.curTok.Type != token.ASSIGN {
-				return nil, p.tokenError(token.ASSIGN)
+				return nil, nil, p.tokenError(token.ASSIGN)
 			}
 
 			p.nextToken()
@@ -302,31 +316,31 @@ mapLoop:
 			case token.INT:
 				valInt, err := strconv.Atoi(val.Literal)
 				if err != nil {
-					return nil, fmt.Errorf("invalid integer %s", val.Literal)
+					return nil, nil, fmt.Errorf("invalid integer %s", val.Literal)
 				}
 				m.Set(key, valInt)
 			case token.FLOAT:
 				valFloat, err := strconv.ParseFloat(val.Literal, 64)
 				if err != nil {
-					return nil, fmt.Errorf("invalid floating point number %s", val.Literal)
+					return nil, nil, fmt.Errorf("invalid floating point number %s", val.Literal)
 				}
 				m.Set(key, valFloat)
 			case token.LSQUARE:
 				array, err := p.parseArray()
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				m.Set(key, array)
 				continue mapLoop
 			case token.LBRACE:
-				subMap, err := p.parseMap()
+				subMap, _, err := p.parseMap()
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				m.Set(key, subMap)
 				continue mapLoop
 			default:
-				return nil, p.tokenError(
+				return nil, nil, p.tokenError(
 					token.STRING,
 					token.INT,
 					token.FLOAT,
@@ -337,14 +351,14 @@ mapLoop:
 				)
 			}
 		default:
-			return nil, fmt.Errorf("map key must be a string: %s", p.curTok.Type)
+			return nil, nil, fmt.Errorf("map key must be a string: %s", p.curTok.Type)
 		}
 
 		p.nextToken()
 	}
 
 	p.nextToken() // Consume closing }
-	return m, nil
+	return m, submap, nil
 }
 
 func (p *parser) parseArray() (interface{}, error) {

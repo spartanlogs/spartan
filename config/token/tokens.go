@@ -32,6 +32,7 @@ const (
 	BANG
 	ASTERISK
 	SLASH
+	PIPE
 
 	LT
 	GT
@@ -82,6 +83,7 @@ var tokens = [...]string{
 	BANG:     "!",
 	ASTERISK: "*",
 	SLASH:    "/",
+	PIPE:     "|",
 
 	LT:    "<",
 	GT:    ">",

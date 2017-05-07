@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/spartanlogs/spartan/event"
+	"github.com/spartanlogs/spartan/utils"
 )
 
 // A Codec is an object that can encode an Event to a byte slice
@@ -24,7 +25,7 @@ type Codec interface {
 	DecodeReader(r io.Reader, out chan<- *event.Event)
 }
 
-type codecInitFunc func() (Codec, error)
+type codecInitFunc func(options utils.InterfaceMap) (Codec, error)
 
 var (
 	registeredCodecInits map[string]codecInitFunc
@@ -46,10 +47,10 @@ func Register(name string, c codecInitFunc) {
 }
 
 // New will create an instance of the codec registered as name.
-func New(name string) (Codec, error) {
+func New(name string, options utils.InterfaceMap) (Codec, error) {
 	c, exists := registeredCodecInits[name]
 	if !exists {
 		return nil, ErrCodecNotRegistered
 	}
-	return c()
+	return c(options)
 }

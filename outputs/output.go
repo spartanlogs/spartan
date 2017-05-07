@@ -79,7 +79,7 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 			return nil, fmt.Errorf("invalid codec setting in %s plugin", def.Module)
 		}
 
-		codec, err := codecs.New(codecName)
+		codec, err := codecs.New(codecName, def.CodecOptions)
 		if err != nil {
 			return nil, err
 		}
