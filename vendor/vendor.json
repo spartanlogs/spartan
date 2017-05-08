@@ -40,22 +40,22 @@
 			"revisionTime": "2017-05-07T02:16:36Z"
 		},
 		{
-			"checksumSHA1": "9BByjEKo1YyUuC1z3rl5bW/nO50=",
+			"checksumSHA1": "Sa1gdcyGpSheDDatOKH4gKjcHus=",
 			"path": "github.com/spartanlogs/spartan-codec-json_lines",
-			"revision": "41c51dd0b1e9209c73c67a79ebc8db7d97226e90",
-			"revisionTime": "2017-05-07T02:16:39Z"
+			"revision": "c57dfbe8bc40293ad9b500e990c5f983a4c683e9",
+			"revisionTime": "2017-05-08T13:40:59Z"
 		},
 		{
-			"checksumSHA1": "7gDhgiJyXUy/yAKId1udzR40Qyw=",
+			"checksumSHA1": "7BeHNBL/41xbH+f2/g3fqUhX/hc=",
 			"path": "github.com/spartanlogs/spartan-codec-json_pretty",
-			"revision": "fc39c8da6f25be6c551fdea01fa1d64d1c7420c2",
-			"revisionTime": "2017-05-07T02:16:42Z"
+			"revision": "01449828d422a75de181075b4f57bc73af210e2a",
+			"revisionTime": "2017-05-08T13:41:52Z"
 		},
 		{
-			"checksumSHA1": "Yfp/HAsax6FJMGTxsvzHIrUJ63Q=",
+			"checksumSHA1": "aZcjmqvyVjTbhXQngC/8NWHSFwY=",
 			"path": "github.com/spartanlogs/spartan-codec-line",
-			"revision": "38de9cb4285ea99c28997cdee9b4657f0d16dd01",
-			"revisionTime": "2017-05-07T02:16:45Z"
+			"revision": "37beecb35f86de3e88e69d60c7575a57bf537aa1",
+			"revisionTime": "2017-05-08T13:41:55Z"
 		},
 		{
 			"checksumSHA1": "H0P0qDZkU0lK0ZGfO0DnAwnUgFE=",
@@ -64,46 +64,46 @@
 			"revisionTime": "2017-05-07T02:16:48Z"
 		},
 		{
-			"checksumSHA1": "ISTq0Vz6gH3euKPZxkWATBrxOxM=",
+			"checksumSHA1": "HOWePVTYhW4W5/OJUy7f2e7QvXk=",
 			"path": "github.com/spartanlogs/spartan-filter-date",
-			"revision": "bb8b36e0f8ce4811d9df0387b0b5372a5fa4de22",
-			"revisionTime": "2017-05-06T18:26:43Z"
+			"revision": "13630e2a97bae591557c7f06b1e47b78b0c8b864",
+			"revisionTime": "2017-05-08T13:42:00Z"
 		},
 		{
-			"checksumSHA1": "1MZ5J9GLtHKF4N+lMws0mhdL8HI=",
+			"checksumSHA1": "wD4/lFeO5lXurve7EgEm51TwspQ=",
 			"path": "github.com/spartanlogs/spartan-filter-grok",
-			"revision": "00a0b2f7c0420cb02a77ee1a3849c1613a7707aa",
-			"revisionTime": "2017-05-06T18:26:46Z"
+			"revision": "c236aff36b91a23ec004185be593f82fa2f19cd0",
+			"revisionTime": "2017-05-08T13:42:03Z"
 		},
 		{
-			"checksumSHA1": "KdC1GV6/haQ9+OQs1HZc5cPUI+U=",
+			"checksumSHA1": "EPPH533urCm+DTdGzUBVrIPC7i8=",
 			"path": "github.com/spartanlogs/spartan-filter-metrics",
-			"revision": "113e059ebf8c73652a8d920148790758926c0829",
-			"revisionTime": "2017-05-06T18:26:49Z"
+			"revision": "a1e3d2be066bf8148b805106d55749ff651bd9c0",
+			"revisionTime": "2017-05-08T13:42:06Z"
 		},
 		{
-			"checksumSHA1": "pTkDRUdnWanmkZ+lGCXKvSNEorU=",
+			"checksumSHA1": "jBjxq56U7JOUbCuEk11luud+X8s=",
 			"path": "github.com/spartanlogs/spartan-filter-remove-field",
-			"revision": "53b5f7b8330d2c7ec90275e1f7fd587db53c4f3f",
-			"revisionTime": "2017-05-06T18:26:52Z"
+			"revision": "3cd02226e50d729c434dbd67f575c0809cd06ae6",
+			"revisionTime": "2017-05-08T13:42:09Z"
 		},
 		{
-			"checksumSHA1": "vB2/6DsYJcKhK5kFYuFGr6Dulm0=",
+			"checksumSHA1": "enev+LKRqXhdaucaVZqhXRuRtt0=",
 			"path": "github.com/spartanlogs/spartan-input-file",
-			"revision": "6ad6a8f5a0ec3f78f4b2f814d1fa8d5bd83db711",
-			"revisionTime": "2017-05-06T18:26:55Z"
+			"revision": "19b113be6df83835b5ce943f1fdea551f4050c75",
+			"revisionTime": "2017-05-08T13:42:12Z"
 		},
 		{
-			"checksumSHA1": "eN03EhQIsoDkWXbsWxhBPRpjZ/I=",
+			"checksumSHA1": "6d5tuPhkIuYlmXsYA6JtAA11Q+8=",
 			"path": "github.com/spartanlogs/spartan-input-generator",
-			"revision": "7df1eb6519c65ebdb8adcaaeead04ed21e8530c0",
-			"revisionTime": "2017-05-06T18:26:58Z"
+			"revision": "3fd291174568fbfbaed65ccb0e1d49e24482aec7",
+			"revisionTime": "2017-05-08T13:42:15Z"
 		},
 		{
-			"checksumSHA1": "q8eLDlTb/Q+KHStuddlQKt5CpX4=",
+			"checksumSHA1": "wq540RT/9sw7aaajugLeMuwcQgE=",
 			"path": "github.com/spartanlogs/spartan-output-stdout",
-			"revision": "3eda687dbc38cb7df15871aa3ba27204c197d6ef",
-			"revisionTime": "2017-05-06T18:13:06Z"
+			"revision": "8816db37aa05b4c534a54fd4b4b0eaab6b8550b2",
+			"revisionTime": "2017-05-08T13:42:18Z"
 		},
 		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
