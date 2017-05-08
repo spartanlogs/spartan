@@ -49,15 +49,19 @@ type Setting struct {
 }
 
 // VerifySettings is used to check an InterfaceMap against a schema of Setting values.
-func VerifySettings(data utils.InterfaceMap, settings []Setting) error {
+func VerifySettings(data utils.InterfaceMap, settings []Setting) (utils.InterfaceMap, error) {
+	if data == nil {
+		data = utils.NewInterfaceMap()
+	}
+
 	if len(settings) == 0 {
-		return nil
+		return data, nil
 	}
 
 	for _, setting := range settings {
 		v, exists := data.GetOK(setting.Name)
 		if !exists && setting.Required {
-			return fmt.Errorf("Expected required setting %s", setting.Name)
+			return nil, fmt.Errorf("Expected required setting %s", setting.Name)
 		}
 
 		// If there's no value, no need to continue verification
@@ -75,36 +79,39 @@ func VerifySettings(data utils.InterfaceMap, settings []Setting) error {
 			continue
 		case String:
 			if _, ok := v.(string); !ok {
-				return fmt.Errorf("Setting %s expected string, got %T", setting.Name, v)
+				return nil, fmt.Errorf("Setting %s expected string, got %T", setting.Name, v)
 			}
 		case Int:
 			if _, ok := v.(int); !ok {
-				return fmt.Errorf("Setting %s expected int, got %T", setting.Name, v)
+				return nil, fmt.Errorf("Setting %s expected int, got %T", setting.Name, v)
 			}
 		case Float:
 			if _, ok := v.(float64); !ok {
-				return fmt.Errorf("Setting %s expected float, got %T", setting.Name, v)
+				return nil, fmt.Errorf("Setting %s expected float, got %T", setting.Name, v)
 			}
 		case Bool:
 			if _, ok := v.(bool); !ok {
-				return fmt.Errorf("Setting %s expected true/false, got %T", setting.Name, v)
+				return nil, fmt.Errorf("Setting %s expected true/false, got %T", setting.Name, v)
 			}
 		case Array:
 			if err := verifyArray(v, setting.ElemType); err != nil {
-				return err
+				return nil, err
 			}
 		case Map:
 			m, ok := v.(utils.InterfaceMap)
 			if !ok {
-				return fmt.Errorf("Setting %s expected map of values", setting.Name)
+				return nil, fmt.Errorf("Setting %s expected map of values", setting.Name)
 			}
-			if err := VerifySettings(m, setting.MapDef); err != nil {
-				return err
+			var err error
+			v, err = VerifySettings(m, setting.MapDef)
+			if err != nil {
+				return nil, err
 			}
+			data.Set(setting.Name, v)
 		}
 	}
 
-	return nil
+	return data, nil
 }
 
 func verifyArray(data interface{}, elemType *Setting) error {
