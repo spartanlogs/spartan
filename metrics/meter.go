@@ -57,7 +57,7 @@ func (m *Meter) Clear() {
 }
 
 func (m *Meter) Mark(val int64) {
-	atomic.AddInt64(&m.count, 1)
+	atomic.AddInt64(&m.count, val)
 	m.rates[0].Add(val)
 	m.rates[1].Add(val)
 	m.rates[2].Add(val)
