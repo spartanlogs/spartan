@@ -1,7 +1,7 @@
 package main
 
 import (
-	// Imports
+	// Inputs
 	_ "github.com/spartanlogs/spartan-input-file"
 	_ "github.com/spartanlogs/spartan-input-generator"
 
