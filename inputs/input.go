@@ -18,6 +18,13 @@ type Input interface {
 	Close() error
 }
 
+// BaseInput can be embeded by other input plugins to provide full interface
+// implementation and standard utility functions.
+type BaseInput struct{}
+
+// Close the input
+func (i *BaseInput) Close() error { return nil }
+
 type initFunc func(utils.InterfaceMap) (Input, error)
 
 var (

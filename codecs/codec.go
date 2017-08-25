@@ -25,6 +25,21 @@ type Codec interface {
 	DecodeReader(r io.Reader, out chan<- *event.Event)
 }
 
+// BaseCodec can be embedded into a final codec to provide stuff
+type BaseCodec struct{}
+
+// Encode Event.
+func (c *BaseCodec) Encode(e *event.Event) []byte { return nil }
+
+// EncodeWriter reads events from in and writes them to w
+func (c *BaseCodec) EncodeWriter(w io.Writer, in <-chan *event.Event) {}
+
+// Decode byte slice into an Event.
+func (c *BaseCodec) Decode(data []byte) (*event.Event, error) { return nil, nil }
+
+// DecodeReader reads from r and creates an event sent to out
+func (c *BaseCodec) DecodeReader(r io.Reader, out chan<- *event.Event) {}
+
 type codecInitFunc func(options utils.InterfaceMap) (Codec, error)
 
 var (

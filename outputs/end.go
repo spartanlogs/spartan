@@ -1,24 +1,20 @@
 package outputs
 
 import (
-	"github.com/spartanlogs/spartan/codecs"
 	"github.com/spartanlogs/spartan/event"
 	"github.com/spartanlogs/spartan/utils"
 )
 
 // The End output is a special output that is used for internal purposes
 // to terminate an output chain. It simply returns as a no-op.
-type end struct{}
+type end struct {
+	BaseOutput
+}
 
 func newEndOutput(options utils.InterfaceMap) (Output, error) {
 	return &end{}, nil
 }
 
-// Run terminates an Output chain by immediately returning.
-func (*end) Run(in []*event.Event) {}
+func (o *end) Run(batch []*event.Event) {}
 
-// SetNext is a no-op since End is meant to terminate an Output chain.
-func (*end) SetNext(n Output) {}
-
-// SetCodec is a no-op since End has no data to encode.
-func (*end) SetCodec(c codecs.Codec) {}
+func (o *end) LoadCodec(name string, options utils.InterfaceMap) error { return nil }

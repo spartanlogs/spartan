@@ -18,8 +18,34 @@ type Output interface {
 	// Run processes a batch.
 	Run(batch []*event.Event)
 
-	// SetCodec sets the codec
-	SetCodec(codecs.Codec)
+	// LoadCodec will create a codec object for the Output. The output can disable
+	// codec creation by redeclaring this function and simply returning nil.
+	LoadCodec(name string, options utils.InterfaceMap) error
+}
+
+// BaseOutput can be embeded in other output plugins to provide utility functionality.
+// The Run method must be defined by the child struct. The LoadCodec method can be
+// "disabled" by redefining it on the struct and returning nil.
+type BaseOutput struct {
+	Codec codecs.Codec
+	Next  Output
+}
+
+// SetNext sets the next Output in line.
+func (o *BaseOutput) SetNext(next Output) { o.Next = next }
+
+// LoadCodec creates a codec object for the output
+func (o *BaseOutput) LoadCodec(name string, options utils.InterfaceMap) error {
+	if name == "" {
+		name = "plain"
+	}
+
+	codec, err := codecs.New(name, options)
+	if err != nil {
+		return err
+	}
+	o.Codec = codec
+	return nil
 }
 
 type initFunc func(utils.InterfaceMap) (Output, error)
@@ -79,11 +105,9 @@ func GeneratePipeline(defs []*parser.PipelineDef) (Output, error) {
 			return nil, fmt.Errorf("invalid codec setting in %s plugin", def.Module)
 		}
 
-		codec, err := codecs.New(codecName, def.CodecOptions)
-		if err != nil {
+		if err := output.LoadCodec(codecName, def.CodecOptions); err != nil {
 			return nil, err
 		}
-		output.SetCodec(codec)
 
 		outputs[i] = output
 	}
